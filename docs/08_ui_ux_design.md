@@ -1,4 +1,4 @@
-# UI/UX 設計書：配当トラッカー
+# UI/UX 設計書：マイ配当
 
 基本設計（[03_design.md](03_design.md)）の画面設計を、実装済みのビジュアル言語・デザインシステムとして具体化したもの。**今後のUI実装はこの文書を正とする。方針を変える時はコードより先にここを直す。**
 
@@ -84,7 +84,7 @@
 - **生成は再現可能**：`scripts/gen-icons.mjs`（sharp で1つのSVGマークから全PNGを出力）。マーク変更時はこのスクリプトを直して再実行する。
   - `assets/icon.png`（1024・iOS/汎用）／`favicon.png`（256・web）／`splash-icon.png`（白マーク透過）
   - `android-icon-{background,foreground,monochrome}.png`（アダプティブ。前景は安全域62%に縮小）
-- **app.json**：表示名「配当トラッカー」、`userInterfaceStyle: automatic`（ダーク対応）、アダプティブ背景 `#00C24A`、`expo-splash-screen`（緑地＋白マーク、ダークは `#0B120E`）。
+- **app.json**：表示名「マイ配当」、bundle id `com.datz.mydividend`、`userInterfaceStyle: automatic`（ダーク対応）、アダプティブ背景 `#00C24A`、`expo-splash-screen`（緑地＋白マーク、ダークは `#0B120E`）。
 
 ## 7. 未対応・今後（このドキュメントで管理）
 

@@ -168,7 +168,7 @@ export default function App() {
 
       <View style={s.titleBar}>
         <Text style={s.brand}>DIVIDEND</Text>
-        <Text style={s.title}>配当トラッカー</Text>
+        <Text style={s.title}>マイ配当</Text>
       </View>
 
       <View style={s.content}>

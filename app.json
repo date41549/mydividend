@@ -1,18 +1,18 @@
 {
   "expo": {
-    "name": "配当トラッカー",
-    "slug": "dividend-tracker",
+    "name": "マイ配当",
+    "slug": "mydividend",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.hirokidate.dividendtracker",
+      "bundleIdentifier": "com.datz.mydividend",
       "buildNumber": "1"
     },
     "android": {
-      "package": "com.hirokidate.dividendtracker",
+      "package": "com.datz.mydividend",
       "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#00C24A",

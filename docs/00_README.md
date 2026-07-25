@@ -1,4 +1,4 @@
-# 配当トラッカー（仮）ドキュメント
+# マイ配当 ドキュメント
 
 初アプリ開発（Expo / React Native / TypeScript）。高配当株の配当を管理するスマホアプリ。
 公開・収益化を見据えつつ、まずは学習・練習として作り切ることを優先する。
@@ -18,6 +18,7 @@
 
 ## 決定事項（サマリー）
 
+- **アプリ名**：**マイ配当**（bundle id `com.datz.mydividend`）
 - **ポジショニング**：高配当ガチ勢向けの、モダンで深掘りできる配当トラッカー（B×A ハイブリッド）
 - **UI/UX方針**：モダンで可読性の高いデザイン（明るいグリーン基調・等幅の数字・押せる場所が明快・ライト/ダーク対応）。差別化は課金の分析深度で担保（詳細 08）
 - **マネタイズ**：フリーミアム（広告 ＋ 月額課金 250〜300円）
@@ -30,8 +31,9 @@
 - UI/UX を B（明るくポップ＋データ密）で刷新済み。アフォーダンス整備済み（`08_ui_ux_design.md`）
 - **単体テスト導入済み**（jest＋@swc/jest、calc＋backup で37ケース全パス。`npm test`）
 - **JSONバックアップ（FR-10）実装済み**（設定タブ：エクスポート／インポート）
-- **アプリアイコン・スプラッシュ実装済み**（緑の¥コイン。`scripts/gen-icons.mjs` で再生成可。表示名「配当トラッカー」・ダーク対応）
-- **リリース準備着手**：ESLint導入（lint/型/テストの3ゲート緑）、`.github/workflows/`（CI＋タグでEASビルド）、`eas.json`、app.jsonに識別子（`com.hirokidate.dividendtracker`）、`docs/privacy_policy.md` 起草
+- **アプリ名決定：「マイ配当」**（ASO＋競合調査で確定。App Store/Play同名なし、`com.datz.mydividend` はPlay空き確認済み）
+- **アプリアイコン・スプラッシュ実装済み**（緑の¥コイン。`scripts/gen-icons.mjs` で再生成可。表示名「マイ配当」・ダーク対応）
+- **リリース準備着手**：ESLint導入（lint/型/テストの3ゲート緑）、`.github/workflows/`（CI＋タグでEASビルド）、`eas.json`、app.jsonに識別子（`com.datz.mydividend`）、`docs/privacy_policy.md` 起草
 - 残（伊達さん側が主）：実機CRUDテスト → Apple/Google登録・`eas init`/`EXPO_TOKEN` → プライバシーポリシー公開URL・スクショ → EASビルド/審査（05,06）
 
 ## 開発の進め方（ルール）

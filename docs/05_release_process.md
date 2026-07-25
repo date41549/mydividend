@@ -26,7 +26,7 @@ eas build:configure   # eas.json を生成
 
 ## 2. アプリの下準備（両OS共通）
 
-- **アプリ名 / bundle identifier**（例 `com.hirokidate.dividendtracker`）を決める（後から変えられないので慎重に）
+- **アプリ名 / bundle identifier** → **決定済み**：表示名「マイ配当」／id `com.datz.mydividend`（App Store/Play 同名調査・Play package空き確認済み。後から変えられないので確定扱い）
 - **アイコン**（1024×1024）・**スプラッシュ画面**
 - **プライバシーポリシー URL**（両ストア必須。GitHub Pages 等で無料公開可）
 - **スクリーンショット**（各OS・各画面サイズ規定あり）
