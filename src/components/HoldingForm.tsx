@@ -51,6 +51,9 @@ export function HoldingForm({
   const [memo, setMemo] = useState("");
 
   // モーダルを開くたびに initial の内容で初期化する。
+  // 開いた瞬間に props から state を同期する意図的な初期化。key での再マウントでも
+  // 実現できるが、Modal を常時マウントする構成のため effect で行う（このルールのみ局所的に無効化）。
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (!visible) return;
     setCode(initial?.code ?? "");
@@ -65,6 +68,7 @@ export function HoldingForm({
     setSector(initial?.sector);
     setMemo(initial?.memo ?? "");
   }, [visible, initial]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const cur = currencyOf(assetType);
   const sym = currencySymbol(cur);

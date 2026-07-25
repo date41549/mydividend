@@ -1,0 +1,30 @@
+name: Release (EAS Build)
+
+# タグ push（vX.Y.Z）で本番ビルドを起動する。
+# 前提（有効化する前に必要）:
+#   1. `eas init` で Expo プロジェクトを作成（app.json に projectId が入る）
+#   2. Expo のアクセストークンを GitHub Secrets に `EXPO_TOKEN` として登録
+#   3. Apple / Google のストア資格情報（EAS が保管）
+# これらが未設定のうちはタグを打たなければ起動しない。
+on:
+  push:
+    tags: ["v*"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm i -g eas-cli
+      - name: EAS Build (production)
+        run: eas build --platform all --non-interactive --profile production
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      # ストア提出まで自動化する場合は続けて:
+      # - run: eas submit --platform all --non-interactive --profile production
+      #   env: { EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }} }

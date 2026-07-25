@@ -31,7 +31,8 @@
 - **単体テスト導入済み**（jest＋@swc/jest、calc＋backup で37ケース全パス。`npm test`）
 - **JSONバックアップ（FR-10）実装済み**（設定タブ：エクスポート／インポート）
 - **アプリアイコン・スプラッシュ実装済み**（緑の¥コイン。`scripts/gen-icons.mjs` で再生成可。表示名「配当トラッカー」・ダーク対応）
-- 残：実機での CRUD 通しテスト → UX微調整 → ビルド/審査（05,06）で v1.1（ストア審査品質）へ
+- **リリース準備着手**：ESLint導入（lint/型/テストの3ゲート緑）、`.github/workflows/`（CI＋タグでEASビルド）、`eas.json`、app.jsonに識別子（`com.hirokidate.dividendtracker`）、`docs/privacy_policy.md` 起草
+- 残（伊達さん側が主）：実機CRUDテスト → Apple/Google登録・`eas init`/`EXPO_TOKEN` → プライバシーポリシー公開URL・スクショ → EASビルド/審査（05,06）
 
 ## 開発の進め方（ルール）
 

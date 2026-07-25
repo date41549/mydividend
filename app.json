@@ -7,9 +7,13 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.hirokidate.dividendtracker",
+      "buildNumber": "1"
     },
     "android": {
+      "package": "com.hirokidate.dividendtracker",
+      "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#00C24A",
         "foregroundImage": "./assets/android-icon-foreground.png",
