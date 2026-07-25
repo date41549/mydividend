@@ -1,0 +1,280 @@
+import { Holding, Goal } from "../types";
+import {
+  TAX_RATE,
+  currency,
+  annualDividend,
+  afterTaxDividend,
+  currentYield,
+  yieldOnCost,
+  marketValue,
+  acquisitionValue,
+  unrealizedPL,
+  plPercent,
+  annualDividendJPY,
+  marketValueJPY,
+  unrealizedPLJPY,
+  totalAnnual,
+  totalAnnualAfterTax,
+  totalMarketValue,
+  totalAcquisition,
+  totalUnrealizedPL,
+  portfolioYield,
+  monthlyDividends,
+  accountSummary,
+  accountLabel,
+  goalProgress,
+  cyclicalityBalance,
+  yen,
+  signedYen,
+  pct,
+  signedPct,
+} from "../calc";
+
+// テスト用の Holding を組み立てるヘルパー（必要な項目だけ上書き）。
+function h(over: Partial<Holding> = {}): Holding {
+  return {
+    id: "x",
+    code: "0000",
+    name: "テスト",
+    assetType: "jp_stock",
+    shares: 100,
+    dividendPerShare: 10,
+    price: 200,
+    acquisitionPrice: 100,
+    payoutMonths: [6, 12],
+    account: "specific",
+    ...over,
+  };
+}
+
+// 代表的な銘柄（三菱商事 8058：日本株・卸売業＝景気敏感）
+const mitsubishi = h({
+  code: "8058",
+  name: "三菱商事",
+  assetType: "jp_stock",
+  shares: 4,
+  dividendPerShare: 125,
+  price: 5000,
+  acquisitionPrice: 2600,
+  payoutMonths: [3, 9],
+  account: "nisa",
+  sector: "卸売業",
+});
+
+// 米国株（KO コカ・コーラ：USD建て・四半期配当）
+const coke = h({
+  code: "KO",
+  name: "コカ・コーラ",
+  assetType: "us_stock",
+  shares: 20,
+  dividendPerShare: 1.94,
+  price: 62,
+  acquisitionPrice: 50,
+  payoutMonths: [3, 6, 9, 12],
+  account: "specific",
+  sector: undefined,
+});
+
+describe("1銘柄あたりの計算（通貨建て）", () => {
+  test("currency は資産種別から通貨を導出", () => {
+    expect(currency(h({ assetType: "jp_stock" }))).toBe("JPY");
+    expect(currency(h({ assetType: "us_etf" }))).toBe("USD");
+  });
+
+  test("annualDividend = 株数 × 1株配当", () => {
+    expect(annualDividend(h({ shares: 4, dividendPerShare: 125 }))).toBe(500);
+  });
+
+  test("afterTaxDividend: NISAは非課税、課税口座は20.315%控除", () => {
+    expect(afterTaxDividend(h({ shares: 4, dividendPerShare: 125, account: "nisa" }))).toBe(500);
+    expect(
+      afterTaxDividend(h({ shares: 4, dividendPerShare: 125, account: "specific" }))
+    ).toBeCloseTo(500 * (1 - TAX_RATE), 6);
+    expect(TAX_RATE).toBeCloseTo(0.20315, 6);
+  });
+
+  test("currentYield = 1株配当 ÷ 株価 ×100、株価0以下なら0", () => {
+    expect(currentYield(h({ dividendPerShare: 10, price: 200 }))).toBeCloseTo(5, 6);
+    expect(currentYield(h({ price: 0 }))).toBe(0);
+    expect(currentYield(h({ price: -1 }))).toBe(0);
+  });
+
+  test("yieldOnCost（簿価利回り）取得単価が無ければ null", () => {
+    expect(yieldOnCost(h({ dividendPerShare: 10, acquisitionPrice: 100 }))).toBeCloseTo(10, 6);
+    expect(yieldOnCost(h({ acquisitionPrice: undefined }))).toBeNull();
+    expect(yieldOnCost(h({ acquisitionPrice: 0 }))).toBeNull();
+  });
+
+  test("marketValue / acquisitionValue", () => {
+    expect(marketValue(h({ shares: 4, price: 5000 }))).toBe(20000);
+    expect(acquisitionValue(h({ shares: 4, acquisitionPrice: 2600 }))).toBe(10400);
+    expect(acquisitionValue(h({ acquisitionPrice: undefined }))).toBeNull();
+  });
+
+  test("unrealizedPL / plPercent、取得単価なしは null", () => {
+    const g = h({ shares: 4, price: 5000, acquisitionPrice: 2600 }); // 20000 - 10400 = 9600
+    expect(unrealizedPL(g)).toBe(9600);
+    expect(plPercent(g)).toBeCloseTo((9600 / 10400) * 100, 6);
+    expect(unrealizedPL(h({ acquisitionPrice: undefined }))).toBeNull();
+    expect(plPercent(h({ acquisitionPrice: undefined }))).toBeNull();
+  });
+
+  test("含み損益はマイナスにもなる", () => {
+    expect(unrealizedPL(h({ shares: 10, price: 90, acquisitionPrice: 100 }))).toBe(-100);
+  });
+});
+
+describe("円換算（USDは為替を掛ける）", () => {
+  const fx = 150;
+  test("annualDividendJPY: JPYはそのまま / USDは ×fx", () => {
+    expect(annualDividendJPY(h({ shares: 4, dividendPerShare: 125, assetType: "jp_stock" }), fx)).toBe(500);
+    // KO: 20 × 1.94 = 38.8 USD → ×150 = 5820円
+    expect(annualDividendJPY(coke, fx)).toBeCloseTo(38.8 * 150, 4);
+  });
+
+  test("marketValueJPY / unrealizedPLJPY（USD）", () => {
+    expect(marketValueJPY(coke, fx)).toBeCloseTo(20 * 62 * 150, 4); // 1240 USD
+    expect(unrealizedPLJPY(coke, fx)).toBeCloseTo((20 * 62 - 20 * 50) * 150, 4); // (1240-1000)×150
+  });
+});
+
+describe("ポートフォリオ全体（円ベース）", () => {
+  const fx = 150;
+  const port = [mitsubishi, coke];
+
+  test("totalAnnual = 各銘柄の円換算年間配当の合計", () => {
+    const expected = 4 * 125 + 38.8 * 150; // 500 + 5820
+    expect(totalAnnual(port, fx)).toBeCloseTo(expected, 4);
+  });
+
+  test("totalAnnualAfterTax: NISAは満額、課税は控除", () => {
+    const mitsubishiAfter = 500; // NISA
+    const cokeAfter = 38.8 * 150 * (1 - TAX_RATE); // 課税
+    expect(totalAnnualAfterTax(port, fx)).toBeCloseTo(mitsubishiAfter + cokeAfter, 4);
+  });
+
+  test("totalMarketValue / totalAcquisition / totalUnrealizedPL", () => {
+    const mv = 4 * 5000 + 20 * 62 * 150; // 20000 + 186000
+    const acq = 4 * 2600 + 20 * 50 * 150; // 10400 + 150000
+    expect(totalMarketValue(port, fx)).toBeCloseTo(mv, 4);
+    expect(totalAcquisition(port, fx)).toBeCloseTo(acq, 4);
+    expect(totalUnrealizedPL(port, fx)).toBeCloseTo(mv - acq, 4);
+  });
+
+  test("portfolioYield = 総年間配当 ÷ 総評価額 ×100、評価額0なら0", () => {
+    const y = (totalAnnual(port, fx) / totalMarketValue(port, fx)) * 100;
+    expect(portfolioYield(port, fx)).toBeCloseTo(y, 6);
+    expect(portfolioYield([], fx)).toBe(0);
+  });
+
+  test("空ポートフォリオは全て0", () => {
+    expect(totalAnnual([], fx)).toBe(0);
+    expect(totalMarketValue([], fx)).toBe(0);
+    expect(totalUnrealizedPL([], fx)).toBe(0);
+  });
+});
+
+describe("月別配当（支払月で等分）", () => {
+  const fx = 150;
+  test("年2回払いは各月に半額ずつ", () => {
+    const m = monthlyDividends([h({ shares: 4, dividendPerShare: 125, payoutMonths: [3, 9] })], fx);
+    expect(m[2]).toBeCloseTo(250, 6); // 3月
+    expect(m[8]).toBeCloseTo(250, 6); // 9月
+    expect(m[0]).toBe(0); // 1月
+    expect(m.length).toBe(12);
+  });
+
+  test("支払月が空の銘柄はスキップ（合計に載らない）", () => {
+    const m = monthlyDividends([h({ payoutMonths: [] })], fx);
+    expect(m.reduce((a, b) => a + b, 0)).toBe(0);
+  });
+
+  test("四半期払い（USD）は円換算して4等分", () => {
+    const m = monthlyDividends([coke], fx);
+    const perQ = (38.8 * 150) / 4;
+    [2, 5, 8, 11].forEach((i) => expect(m[i]).toBeCloseTo(perQ, 4));
+  });
+});
+
+describe("口座別サマリー", () => {
+  const fx = 150;
+  test("保有のある口座だけ、nisa→specific→general の順で返す", () => {
+    const rows = accountSummary([mitsubishi, coke], fx);
+    expect(rows.map((r) => r.account)).toEqual(["nisa", "specific"]);
+    const nisa = rows.find((r) => r.account === "nisa")!;
+    expect(nisa.count).toBe(1);
+    expect(nisa.annual).toBeCloseTo(500, 4);
+    expect(nisa.afterTax).toBeCloseTo(500, 4); // NISAは非課税
+  });
+
+  test("accountLabel", () => {
+    expect(accountLabel("nisa")).toContain("NISA");
+    expect(accountLabel("specific")).toBe("特定口座");
+    expect(accountLabel("general")).toBe("一般口座");
+  });
+});
+
+describe("目標 vs 実績", () => {
+  const fx = 150;
+  const goal: Goal = {
+    monthlyDividend: 10000,
+    annualDividend: 120000,
+    yieldPercent: 4.0,
+    holdingsCount: 50,
+    acquisitionTotal: 3000000,
+  };
+
+  test("5指標を返し、達成率 = 実績 ÷ 目標", () => {
+    const rows = goalProgress([mitsubishi, coke], goal, fx);
+    expect(rows.map((r) => r.key)).toEqual(["monthly", "annual", "yield", "count", "acq"]);
+    const annual = totalAnnual([mitsubishi, coke], fx);
+    const annualRow = rows.find((r) => r.key === "annual")!;
+    expect(annualRow.actual).toBeCloseTo(annual, 4);
+    expect(annualRow.ratio).toBeCloseTo(annual / 120000, 6);
+    const countRow = rows.find((r) => r.key === "count")!;
+    expect(countRow.actual).toBe(2);
+  });
+
+  test("目標0のときは達成率0（ゼロ除算を避ける）", () => {
+    const zero: Goal = { ...goal, annualDividend: 0 };
+    const rows = goalProgress([mitsubishi], zero, fx);
+    expect(rows.find((r) => r.key === "annual")!.ratio).toBe(0);
+  });
+});
+
+describe("景気感応度バランス（分散の下地）", () => {
+  const fx = 150;
+  test("業種から defensive/cyclical/unknown を評価額で按分（%合計≒100）", () => {
+    // 卸売業＝景気敏感 / 食料品＝ディフェンシブ / sector無し＝unknown
+    const cyc = h({ shares: 10, price: 1000, sector: "卸売業" }); // 10000
+    const def = h({ shares: 10, price: 1000, sector: "食料品" }); // 10000
+    const unk = h({ shares: 10, price: 1000, sector: undefined }); // 10000
+    const b = cyclicalityBalance([cyc, def, unk], fx);
+    expect(b.cyclical).toBeCloseTo(100 / 3, 4);
+    expect(b.defensive).toBeCloseTo(100 / 3, 4);
+    expect(b.unknown).toBeCloseTo(100 / 3, 4);
+    expect(b.cyclical + b.defensive + b.unknown).toBeCloseTo(100, 6);
+  });
+
+  test("空ポートフォリオは全て0", () => {
+    expect(cyclicalityBalance([], fx)).toEqual({ defensive: 0, cyclical: 0, unknown: 0 });
+  });
+});
+
+describe("表示ヘルパー", () => {
+  test("yen: 四捨五入＋桁区切り＋円", () => {
+    expect(yen(1234567)).toBe("1,234,567円");
+    expect(yen(1234.6)).toBe("1,235円");
+  });
+  test("signedYen: プラスは+、マイナスは-（記号は数値側）", () => {
+    expect(signedYen(9600)).toBe("+9,600円");
+    expect(signedYen(-100)).toBe("-100円");
+    expect(signedYen(0)).toBe("+0円");
+  });
+  test("pct / signedPct", () => {
+    expect(pct(3.0512)).toBe("3.05%");
+    expect(pct(5, 0)).toBe("5%");
+    expect(signedPct(94.44)).toBe("+94.4%");
+    expect(signedPct(-9.02)).toBe("-9.0%");
+  });
+});
