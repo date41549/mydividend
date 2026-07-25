@@ -35,13 +35,16 @@ import { HoldingCard } from "./src/components/HoldingCard";
 import { HoldingForm } from "./src/components/HoldingForm";
 import { CalendarView } from "./src/components/CalendarView";
 import { GoalView } from "./src/components/GoalView";
+import { SettingsView } from "./src/components/SettingsView";
+import { ParsedBackup } from "./src/backup";
 
-type Tab = "holdings" | "calendar" | "goal";
+type Tab = "holdings" | "calendar" | "goal" | "settings";
 
 const TABS: { key: Tab; label: string }[] = [
   { key: "holdings", label: "保有" },
   { key: "calendar", label: "カレンダー" },
   { key: "goal", label: "目標" },
+  { key: "settings", label: "設定" },
 ];
 
 type SortKey = "dividend" | "yield" | "value" | "pl" | "name";
@@ -141,6 +144,16 @@ export default function App() {
     saveGoal(g);
   }
 
+  // バックアップ取り込み：全データを置換して保存（FR-10）。
+  function handleImport(data: ParsedBackup) {
+    setHoldings(data.holdings);
+    saveHoldings(data.holdings);
+    setGoal(data.goal);
+    saveGoal(data.goal);
+    setSettings(data.settings);
+    saveSettings(data.settings);
+  }
+
   if (loading) {
     return (
       <View style={[s.screen, s.center]}>
@@ -182,6 +195,9 @@ export default function App() {
         {tab === "calendar" && <CalendarView holdings={holdings} fx={fx} />}
         {tab === "goal" && (
           <GoalView holdings={holdings} goal={goal} fx={fx} onSave={handleSaveGoal} />
+        )}
+        {tab === "settings" && (
+          <SettingsView holdings={holdings} goal={goal} settings={settings} onImport={handleImport} />
         )}
       </View>
 
