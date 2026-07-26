@@ -28,6 +28,7 @@ import {
   portfolioComposition,
   nisaLifetimeUsed,
   NISA_LIFETIME_CAP,
+  yocHistogram,
   yen,
   signedYen,
   pct,
@@ -334,6 +335,25 @@ describe("構成比（ドーナツ用）", () => {
     const noPrice = h({ id: "np", price: 0, shares: 10, dividendPerShare: 5 });
     expect(portfolioComposition([noPrice], fx, "holding", "dividend")).toHaveLength(1);
     expect(portfolioComposition([noPrice], fx, "holding", "value")).toHaveLength(0);
+  });
+});
+
+describe("簿価利回りヒストグラム", () => {
+  test("YOCを利回り帯で数える・取得単価なしは除外", () => {
+    // mitsubishi YOC=125/2600*100≈4.81%(4〜5%) / coke 取得単価あり 1.94/50*100≈3.88%(3〜4%)
+    const hist = yocHistogram([mitsubishi, coke]);
+    expect(hist.map((b) => b.label)).toEqual(["〜2%", "2〜3%", "3〜4%", "4〜5%", "5%〜"]);
+    expect(hist[2].count).toBe(1); // coke 3〜4%
+    expect(hist[3].count).toBe(1); // 三菱商事 4〜5%
+    // 取得単価なしは除外
+    const noAcq = h({ id: "na", acquisitionPrice: undefined });
+    const hist2 = yocHistogram([noAcq]);
+    expect(hist2.reduce((s, b) => s + b.count, 0)).toBe(0);
+  });
+
+  test("5%以上は最終バケットに", () => {
+    const high = h({ id: "hi", dividendPerShare: 60, acquisitionPrice: 1000 }); // 6%
+    expect(yocHistogram([high])[4].count).toBe(1);
   });
 });
 

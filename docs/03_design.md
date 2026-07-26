@@ -116,6 +116,7 @@ type Settings = { fxUsdJpy: number };  // 為替レート（1USD=何円、手入
 - `monthlyDividends`：年間配当を支払月で等分し月別に集計
 - `goalProgress`：目標（月間/年間配当・利回り・銘柄数・取得額）に対する実績と達成率（FR-5）
 - `portfolioComposition`：構成比（資産種別／セクター／上位銘柄 × 評価額／配当）を円換算で按分（FR-4bのドーナツ用）
+- `yocHistogram`：簿価利回り(YOC)を利回り帯で数える分布（FR-14の分析カード用）
 - `cyclicalityBalance`：ディフェンシブ／景気敏感の構成比（課金分析、dividend-buy連動）※関数は実装済み・UI未接続
 - `dividendContribution`：銘柄別・業種別の配当金構成比（課金分析 FR-13）※**未実装（v1.2 予定）**
 

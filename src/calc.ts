@@ -277,6 +277,24 @@ export function portfolioComposition(
   return sliced.map((s) => ({ ...s, pct: (s.value / total) * 100 }));
 }
 
+// ---- 簿価利回りヒストグラム（FR-14・深掘り分析） --------------------------
+
+export type YocBucket = { label: string; count: number };
+
+// 簿価利回り(YOC)の分布。取得単価が入っている銘柄を利回り帯で数える。
+// 「どれだけ高い利回りで仕込めているか」を可視化する。
+export function yocHistogram(holdings: Holding[]): YocBucket[] {
+  const labels = ["〜2%", "2〜3%", "3〜4%", "4〜5%", "5%〜"];
+  const counts = [0, 0, 0, 0, 0];
+  for (const h of holdings) {
+    const y = yieldOnCost(h);
+    if (y === null) continue;
+    const i = y < 2 ? 0 : y < 3 ? 1 : y < 4 ? 2 : y < 5 ? 3 : 4;
+    counts[i]++;
+  }
+  return labels.map((label, i) => ({ label, count: counts[i] }));
+}
+
 // ---- 表示ヘルパー（円） ---------------------------------------------------
 
 export function yen(n: number): string {

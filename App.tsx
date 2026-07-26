@@ -38,6 +38,7 @@ import { GoalView } from "./src/components/GoalView";
 import { SettingsView } from "./src/components/SettingsView";
 import { CompositionCard } from "./src/components/CompositionCard";
 import { NisaQuotaCard } from "./src/components/NisaQuotaCard";
+import { YocHistogramCard } from "./src/components/YocHistogramCard";
 import { ParsedBackup } from "./src/backup";
 
 type Tab = "holdings" | "calendar" | "goal" | "settings";
@@ -196,6 +197,7 @@ function AppMain() {
                   <CompositionCard holdings={holdings} fx={fx} />
                   <AccountSummary holdings={holdings} fx={fx} />
                   <NisaQuotaCard holdings={holdings} fx={fx} />
+                  <YocHistogramCard holdings={holdings} />
                   {hasUS ? <FxRateBar t={t} fx={fx} onSave={handleSaveFx} /> : null}
                   <SortBar t={t} value={sortKey} onChange={setSortKey} />
                 </>
