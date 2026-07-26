@@ -216,7 +216,9 @@ export default function App() {
         {TABS.map((x) => (
           <Pressable key={x.key} style={s.tabItem} onPress={() => setTab(x.key)}>
             <View style={[s.tabPill, tab === x.key && s.tabPillOn]}>
-              <Text style={[s.tabText, tab === x.key && s.tabTextOn]}>{x.label}</Text>
+              <Text style={[s.tabText, tab === x.key && s.tabTextOn]} numberOfLines={1}>
+                {x.label}
+              </Text>
             </View>
           </Pressable>
         ))}
@@ -401,12 +403,13 @@ const styles = (t: Theme) =>
       ...Platform.select({ web: { cursor: "pointer" as const }, default: {} }),
     },
     tabPill: {
-      paddingHorizontal: spacing.lg,
+      paddingHorizontal: spacing.sm,
       paddingVertical: spacing.xs + 2,
       borderRadius: 999,
+      maxWidth: "100%",
     },
     tabPillOn: { backgroundColor: t.chipBg },
-    tabText: { color: t.sub, fontSize: 13, fontWeight: "600" },
+    tabText: { color: t.sub, fontSize: 12.5, fontWeight: "600" },
     tabTextOn: { color: t.primary, fontWeight: "800" },
     empty: { alignItems: "center", paddingHorizontal: spacing.xl, paddingTop: spacing.xxl * 2 },
     emptyCoin: {
