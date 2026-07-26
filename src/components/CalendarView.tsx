@@ -4,10 +4,23 @@ import { Holding } from "../types";
 import { monthlyDividends, totalAnnual, yen } from "../calc";
 import { Theme, useTheme, spacing, radius } from "../theme";
 
-// 月別の配当見込み。緑ヒーロー＋白カードの横棒グラフ（円換算）。
+// 月別の配当見込み。年間合計は保有画面のヒーローと重複するので、ここでは控えめな参照に留め、
+// この画面の主役＝月別の分布（棒グラフ）に集中する。質感は「内訳」カードに揃える。
 export function CalendarView({ holdings, fx }: { holdings: Holding[]; fx: number }) {
   const t = useTheme();
   const s = styles(t);
+
+  if (holdings.length === 0) {
+    return (
+      <ScrollView contentContainerStyle={s.container}>
+        <View style={[s.card, s.emptyCard]}>
+          <Text style={s.emptyTitle}>まだデータがありません</Text>
+          <Text style={s.emptySub}>保有を追加すると、配当が何月にいくら入るかが見えます。</Text>
+        </View>
+      </ScrollView>
+    );
+  }
+
   const months = monthlyDividends(holdings, fx);
   const max = Math.max(1, ...months);
   const peak = months.indexOf(max);
@@ -15,33 +28,38 @@ export function CalendarView({ holdings, fx }: { holdings: Holding[]; fx: number
 
   return (
     <ScrollView contentContainerStyle={s.container}>
-      <View style={s.hero}>
-        <Text style={s.heroLabel}>年間配当見込み · 税引前</Text>
-        <Text style={s.heroValue}>{yen(annual)}</Text>
-        <Text style={s.heroSub}>月平均 {yen(annual / 12)}</Text>
-      </View>
-
       <View style={s.card}>
-        {months.map((v, i) => {
-          const isPeak = i === peak && v > 0;
-          return (
-            <View key={i} style={s.row}>
-              <Text style={[s.month, isPeak && s.monthPeak]}>{i + 1}月</Text>
-              <View style={s.barTrack}>
-                <View
-                  style={[
-                    s.barFill,
-                    { width: `${(v / max) * 100}%` },
-                    v === 0 && s.barEmpty,
-                  ]}
-                />
+        <View style={s.head}>
+          <View style={s.headLeft}>
+            <Text style={s.title}>月別の配当見込み</Text>
+            <Text style={s.caption}>月平均 {yen(annual / 12)}</Text>
+          </View>
+          <View style={s.headRight}>
+            <Text style={s.annual}>{yen(annual)}</Text>
+            <Text style={s.annualSub}>年間 · 税引前</Text>
+          </View>
+        </View>
+
+        <View style={s.divider} />
+
+        <View style={s.bars}>
+          {months.map((v, i) => {
+            const isPeak = i === peak && v > 0;
+            return (
+              <View key={i} style={s.row}>
+                <Text style={[s.month, isPeak && s.monthPeak]}>{i + 1}月</Text>
+                <View style={s.barTrack}>
+                  <View
+                    style={[s.barFill, { width: `${(v / max) * 100}%` }, v === 0 && s.barEmpty]}
+                  />
+                </View>
+                <Text style={[s.amount, isPeak && s.amountPeak, v === 0 && s.amountEmpty]}>
+                  {v > 0 ? yen(v) : "—"}
+                </Text>
               </View>
-              <Text style={[s.amount, isPeak && s.amountPeak, v === 0 && s.amountEmpty]}>
-                {v > 0 ? yen(v) : "—"}
-              </Text>
-            </View>
-          );
-        })}
+            );
+          })}
+        </View>
       </View>
 
       <Text style={s.note}>※ 各銘柄の年間配当を「権利確定月」の数で等分した概算です。</Text>
@@ -63,29 +81,6 @@ const cardShadow = Platform.select({
 const styles = (t: Theme) =>
   StyleSheet.create({
     container: { paddingVertical: spacing.md, paddingHorizontal: spacing.md },
-    hero: {
-      backgroundColor: t.heroBlock,
-      borderRadius: radius.lg,
-      paddingHorizontal: spacing.lg,
-      paddingVertical: spacing.lg,
-      marginBottom: spacing.md,
-    },
-    heroLabel: { color: t.heroSub, fontSize: 12, fontWeight: "600", letterSpacing: 0.5 },
-    heroValue: {
-      color: t.heroText,
-      fontSize: 40,
-      fontWeight: "800",
-      letterSpacing: -1.2,
-      marginTop: spacing.xs,
-      fontVariant: ["tabular-nums"],
-    },
-    heroSub: {
-      color: t.heroSub,
-      fontSize: 13,
-      fontWeight: "600",
-      marginTop: spacing.sm,
-      fontVariant: ["tabular-nums"],
-    },
     card: {
       backgroundColor: t.card,
       borderRadius: radius.md,
@@ -93,6 +88,19 @@ const styles = (t: Theme) =>
       marginBottom: spacing.md,
       ...cardShadow,
     },
+    head: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" },
+    headLeft: { flex: 1, paddingRight: spacing.sm },
+    title: { color: t.text, fontSize: 15, fontWeight: "800" },
+    caption: { color: t.sub, fontSize: 12, marginTop: 3, fontVariant: ["tabular-nums"] },
+    headRight: { alignItems: "flex-end" },
+    annual: { color: t.text, fontSize: 20, fontWeight: "800", fontVariant: ["tabular-nums"] },
+    annualSub: { color: t.faint, fontSize: 10.5, fontWeight: "600", marginTop: 1 },
+    divider: {
+      height: StyleSheet.hairlineWidth,
+      backgroundColor: t.border,
+      marginVertical: spacing.md,
+    },
+    bars: {},
     row: { flexDirection: "row", alignItems: "center", paddingVertical: spacing.xs + 1 },
     month: { color: t.sub, fontSize: 13, width: 36, fontVariant: ["tabular-nums"] },
     monthPeak: { color: t.text, fontWeight: "700" },
@@ -117,4 +125,13 @@ const styles = (t: Theme) =>
     amountPeak: { color: t.primary, fontWeight: "800" },
     amountEmpty: { color: t.faint, fontWeight: "400" },
     note: { color: t.sub, fontSize: 11, marginHorizontal: spacing.xs, lineHeight: 16 },
+    emptyCard: { alignItems: "center", paddingVertical: spacing.xxl },
+    emptyTitle: { color: t.text, fontSize: 16, fontWeight: "700" },
+    emptySub: {
+      color: t.sub,
+      fontSize: 13,
+      marginTop: spacing.sm,
+      textAlign: "center",
+      lineHeight: 19,
+    },
   });
