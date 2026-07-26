@@ -148,6 +148,17 @@ export function accountSummary(holdings: Holding[], fx: number): AccountSummaryR
     .filter((r) => r.count > 0);
 }
 
+// NISA 生涯非課税保有限度額（簿価ベース・成長投資枠＋つみたて枠の合算上限）。
+export const NISA_LIFETIME_CAP = 18_000_000;
+
+// NISA口座の簿価（取得額）合計＝生涯枠の消化額。売却済みは保有に無いので現在の枠使用を概算できる。
+// ※年間240万枠は購入年の情報が要るため未対応（生涯枠のみ）。
+export function nisaLifetimeUsed(holdings: Holding[], fx: number): number {
+  return holdings
+    .filter((h) => h.account === "nisa")
+    .reduce((sum, h) => sum + acquisitionValueJPY(h, fx), 0);
+}
+
 export function accountLabel(a: AccountType): string {
   if (a === "nisa") return "NISA（非課税）";
   if (a === "specific") return "特定口座";

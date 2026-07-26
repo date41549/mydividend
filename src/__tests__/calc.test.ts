@@ -26,6 +26,8 @@ import {
   goalProgress,
   cyclicalityBalance,
   portfolioComposition,
+  nisaLifetimeUsed,
+  NISA_LIFETIME_CAP,
   yen,
   signedYen,
   pct,
@@ -215,6 +217,13 @@ describe("口座別サマリー", () => {
     expect(accountLabel("nisa")).toContain("NISA");
     expect(accountLabel("specific")).toBe("特定口座");
     expect(accountLabel("general")).toBe("一般口座");
+  });
+
+  test("nisaLifetimeUsed：NISA口座の簿価だけ合算、上限は1800万", () => {
+    // mitsubishi(NISA, 取得 4×2600=10400) / coke(特定, 除外)
+    expect(nisaLifetimeUsed([mitsubishi, coke], fx)).toBeCloseTo(10400, 4);
+    expect(nisaLifetimeUsed([coke], fx)).toBe(0); // NISA無し
+    expect(NISA_LIFETIME_CAP).toBe(18000000);
   });
 });
 
