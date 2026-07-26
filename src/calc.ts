@@ -1,5 +1,5 @@
 import { Holding, AccountType, Cyclicality, Goal, Currency } from "./types";
-import { cyclicalityOf } from "./sectorClassification";
+import { cyclicalityOf, cyclicalityLabel } from "./sectorClassification";
 import { currencyOf, toJPY, assetLabel } from "./assetClass";
 
 // 日本株の配当にかかる税率（所得税15.315% + 住民税5% = 20.315%）
@@ -218,7 +218,7 @@ export function cyclicalityBalance(holdings: Holding[], fx: number): Cyclicality
 
 // ---- 構成比（ドーナツ用・FR-4b） ----------------------------------------
 
-export type CompositionMode = "assetType" | "sector" | "holding";
+export type CompositionMode = "assetType" | "sector" | "cyclicality" | "holding";
 export type CompositionMetric = "value" | "dividend";
 export type CompositionSlice = { key: string; label: string; value: number; pct: number };
 
@@ -245,6 +245,10 @@ export function portfolioComposition(
     } else if (mode === "sector") {
       key = h.sector && h.sector.length > 0 ? h.sector : "__unknown";
       label = h.sector && h.sector.length > 0 ? h.sector : "未分類";
+    } else if (mode === "cyclicality") {
+      const cyc = cyclicalityOf(h.sector);
+      key = cyc ?? "__unknown";
+      label = cyc ? cyclicalityLabel(cyc) : "未分類";
     } else {
       key = h.id;
       label = h.name || h.code || "(名称未設定)";

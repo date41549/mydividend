@@ -297,6 +297,18 @@ describe("構成比（ドーナツ用）", () => {
     expect(comp.map((c) => c.label).sort()).toEqual(["コカ・コーラ", "三菱商事"]);
   });
 
+  test("景気感応度モード：業種から自動分類、sector無しは未分類", () => {
+    // 三菱商事(卸売業=景気敏感) / coke(sector無し=未分類)
+    const comp = portfolioComposition([mitsubishi, coke], fx, "cyclicality");
+    const labels = comp.map((c) => c.label);
+    expect(labels.some((l) => l.includes("景気敏感"))).toBe(true);
+    expect(labels).toContain("未分類");
+    // 食料品=ディフェンシブ に集約されること
+    const def = h({ id: "d", shares: 1, price: 1000, sector: "食料品" });
+    const comp2 = portfolioComposition([mitsubishi, def], fx, "cyclicality");
+    expect(comp2.map((c) => c.label).some((l) => l.includes("ディフェンシブ"))).toBe(true);
+  });
+
   test("7件超は上位6＋『その他』に集約", () => {
     const many = Array.from({ length: 9 }, (_, i) =>
       h({ id: `h${i}`, name: `銘柄${i}`, shares: 1, price: (i + 1) * 100, acquisitionPrice: 1 })

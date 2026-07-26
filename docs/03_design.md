@@ -150,7 +150,7 @@ type Settings = { fxUsdJpy: number };  // 為替レート（1USD=何円、手入
 「見える化」で無料の第一印象を強くする。基本チャートは軽量に自前実装する。
 
 - **描画基盤**：`react-native-svg`（iOS/Android/Web 共通）。チャート専用の重いライブラリは入れず、ドーナツ＝SVGの円弧、棒＝既存の View で描く（依存を最小化・デザイン完全掌握）。
-- **計算は純関数**：`calc.ts` の `portfolioComposition(holdings, fx, mode, metric)` が `mode`（`assetType`／`sector`／`holding`）× `metric`（`value`＝評価額／`dividend`＝年間配当）ごとに「ラベル・円換算値・割合(%)」の配列を返す（テスト可能）。上位6＋「その他」集約。既存の `cyclicalityBalance` も流用。
+- **計算は純関数**：`calc.ts` の `portfolioComposition(holdings, fx, mode, metric)` が `mode`（`assetType`／`sector`／`cyclicality`＝景気感応度／`holding`）× `metric`（`value`＝評価額／`dividend`＝年間配当）ごとに「ラベル・円換算値・割合(%)」の配列を返す（テスト可能）。上位6＋「その他」集約。景気感応度は `cyclicalityOf(sector)` で自動分類（dividend-buyのディフェンシブ50%ルールに直結）。
 - **配色**：`theme.ts` の緑ブランドと調和するカテゴリカル配色（緑を基点に色相を回す固定パレット）。ライト/ダーク両対応。1色は必ずアクセント緑。
 - **コンポーネント**：`components/DonutChart.tsx`（汎用ドーナツ＋中央に合計）＋凡例。保有画面に「配当/資産の内訳」カードとして配置、資産種別／セクター／上位銘柄をチップで切替。
 - **空・少数データ**：0件は非表示、1件は満円、"その他"に小さいスライスを集約。

@@ -20,6 +20,7 @@ const PALETTE = ["#00A83D", "#2563EB", "#D97706", "#8B5CF6", "#EC4899", "#0891B2
 const MODES: { key: CompositionMode; label: string }[] = [
   { key: "assetType", label: "資産種別" },
   { key: "sector", label: "セクター" },
+  { key: "cyclicality", label: "感応度" },
   { key: "holding", label: "銘柄" },
 ];
 
@@ -180,7 +181,7 @@ const styles = (t: Theme) =>
     },
     title: { color: t.text, fontSize: 15, fontWeight: "800" },
     toggle: { flexDirection: "row", gap: spacing.xs },
-    modeRow: { flexDirection: "row", gap: spacing.xs, marginTop: spacing.sm },
+    modeRow: { flexDirection: "row", flexWrap: "wrap", gap: spacing.xs, marginTop: spacing.sm },
     chip: {
       paddingHorizontal: spacing.md,
       paddingVertical: 5,
