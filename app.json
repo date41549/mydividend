@@ -38,6 +38,12 @@
           }
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "c1c0cebe-edd8-4ce3-9ce3-88f968283059"
+      }
+    },
+    "owner": "datehr"
   }
 }

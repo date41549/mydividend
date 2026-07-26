@@ -33,5 +33,10 @@
     "test": "jest",
     "lint": "expo lint"
   },
+  "expo": {
+    "install": {
+      "exclude": ["jest", "@types/jest"]
+    }
+  },
   "private": true
 }
