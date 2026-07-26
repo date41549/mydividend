@@ -22,7 +22,6 @@
     "eslint": "^9.0.0",
     "eslint-config-expo": "~57.0.0",
     "jest": "^30.4.2",
-    "sharp": "^0.35.3",
     "typescript": "~6.0.3"
   },
   "scripts": {
@@ -35,7 +34,10 @@
   },
   "expo": {
     "install": {
-      "exclude": ["jest", "@types/jest"]
+      "exclude": [
+        "jest",
+        "@types/jest"
+      ]
     }
   },
   "private": true

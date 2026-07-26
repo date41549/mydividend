@@ -1,6 +1,7 @@
 // アプリのアイコン／スプラッシュ／ファビコンを1つのブランドマークから生成する。
 // マーク＝緑地に白の「¥コイン」（リング＋¥）。ブランド色は theme.ts と揃える。
-// 実行: node scripts/gen-icons.mjs  （sharp が必要）
+// 実行: まず `npm i -D sharp` してから `node scripts/gen-icons.mjs`
+// ※ sharp はネイティブ依存でEASビルドを壊すため常設しない。アイコン再生成時だけ一時的に入れる。
 import sharp from "sharp";
 import { mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
