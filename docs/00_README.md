@@ -15,6 +15,8 @@
 | [06_cicd.md](06_cicd.md) | CI/CD 設計（GitHub Actions ＋ EAS Build/Submit） |
 | [07_go_to_market.md](07_go_to_market.md) | 宣伝・ユーザー獲得戦略（ASO・オーガニック・広告） |
 | [08_ui_ux_design.md](08_ui_ux_design.md) | UI/UX設計（デザインシステム・配色/タイポ・コンポーネント・アフォーダンス）※UI実装の正 |
+| [store_listing.md](store_listing.md) | ストア掲載文ドラフト（名前/サブ/キーワード/説明/スクショ構成。コピペ用） |
+| [privacy_policy.md](privacy_policy.md) | プライバシーポリシー（公開URL化して両ストアに登録） |
 
 ## 決定事項（サマリー）
 
