@@ -16,7 +16,9 @@
     "react-native-web": "^0.21.2"
   },
   "devDependencies": {
-    "@swc/jest": "^0.2.39",
+    "@babel/core": "^7.29.7",
+    "@babel/preset-env": "^7.29.7",
+    "@babel/preset-typescript": "^7.29.7",
     "@types/jest": "^30.0.0",
     "@types/react": "~19.2.2",
     "eslint": "^9.0.0",
