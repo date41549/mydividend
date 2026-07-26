@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>マイ配当｜配当管理アプリ・連携なしで年間配当を見える化</title>
+  <meta name="description" content="保有している配当株・ETFの年間配当・利回り・月別カレンダー・ポートフォリオ内訳・NISA枠を、証券連携なし・端末内だけでシンプルに見える化する配当管理アプリ「マイ配当」。">
+  <meta name="keywords" content="配当,高配当,配当金,配当管理,NISA,新NISA,利回り,配当カレンダー,ポートフォリオ,インカム">
+  <meta name="theme-color" content="#00c24a">
+  <link rel="canonical" href="https://datz.app/">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%2300c24a'/%3E%3Ctext x='50' y='54' font-size='62' text-anchor='middle' dominant-baseline='central' fill='white' font-family='sans-serif' font-weight='bold'%3E%26%23165;%3C/text%3E%3C/svg%3E">
+
+  <!-- Open Graph / SNS -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="マイ配当">
+  <meta property="og:title" content="マイ配当｜配当管理アプリ">
+  <meta property="og:description" content="年間の配当が、ひと目でわかる。連携なし・端末内だけで、配当・利回り・月別カレンダー・NISA枠を見える化。">
+  <meta property="og:url" content="https://datz.app/">
+  <meta property="og:image" content="https://datz.app/og.png">
+  <meta property="og:locale" content="ja_JP">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="マイ配当｜配当管理アプリ">
+  <meta name="twitter:description" content="年間の配当が、ひと目でわかる。連携なし・端末内だけで見える化する配当管理アプリ。">
+  <meta name="twitter:image" content="https://datz.app/og.png">
+
+  <!-- 構造化データ -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "マイ配当",
+    "applicationCategory": "FinanceApplication",
+    "operatingSystem": "Android",
+    "description": "配当株・ETFの年間配当・利回り・月別カレンダー・内訳・NISA枠を、連携なし・端末内だけで見える化する配当管理アプリ。",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "JPY" }
+  }
+  </script>
+
+  <style>
+    :root {
+      --bg: #eff9f2; --card: #ffffff; --ink: #0b2418; --sub: #5b7568;
+      --faint: #8a998f; --line: #e4efe8; --accent: #00a83d; --vivid: #00c24a;
+      --vivid-2: #00a33c; --on-accent: #ffffff; --chip: #e7f7ed;
+      --shadow: 0 1px 4px rgba(11, 36, 24, 0.08), 0 8px 30px rgba(11, 36, 24, 0.06);
+      --c1: #00a83d; --c2: #2563eb; --c3: #d97706; --c4: #8b5cf6;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0b120e; --card: #141f19; --ink: #eaf5ee; --sub: #8aa398;
+        --faint: #6c8478; --line: #1f2e26; --accent: #2ce884; --vivid: #00c24a;
+        --vivid-2: #00b84a; --chip: #17241d;
+        --shadow: 0 1px 4px rgba(0,0,0,0.4), 0 10px 30px rgba(0,0,0,0.35);
+      }
+    }
+    :root[data-theme="dark"] {
+      --bg: #0b120e; --card: #141f19; --ink: #eaf5ee; --sub: #8aa398;
+      --faint: #6c8478; --line: #1f2e26; --accent: #2ce884; --vivid: #00c24a;
+      --vivid-2: #00b84a; --chip: #17241d;
+      --shadow: 0 1px 4px rgba(0,0,0,0.4), 0 10px 30px rgba(0,0,0,0.35);
+    }
+    :root[data-theme="light"] {
+      --bg: #eff9f2; --card: #ffffff; --ink: #0b2418; --sub: #5b7568;
+      --faint: #8a998f; --line: #e4efe8; --accent: #00a83d; --vivid: #00c24a;
+      --vivid-2: #00a33c; --chip: #e7f7ed;
+      --shadow: 0 1px 4px rgba(11,36,24,0.08), 0 8px 30px rgba(11,36,24,0.06);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; background: var(--bg); color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN",
+        "Noto Sans JP", "Segoe UI", Roboto, sans-serif;
+      line-height: 1.7; -webkit-font-smoothing: antialiased;
+    }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+    .tnum { font-variant-numeric: tabular-nums; }
+    a { color: inherit; }
+
+    nav { display: flex; align-items: center; justify-content: space-between; padding: 20px 0; gap: 16px; }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 18px; letter-spacing: -0.2px; }
+    .coin {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: linear-gradient(160deg, var(--vivid), var(--vivid-2));
+      display: grid; place-items: center; color: #fff; font-weight: 800; font-size: 19px;
+      box-shadow: 0 2px 6px rgba(0, 120, 60, 0.35);
+    }
+    .nav-links { display: flex; gap: 22px; font-size: 14px; font-weight: 600; color: var(--sub); }
+    .nav-links a { text-decoration: none; }
+    .nav-links a:hover { color: var(--accent); }
+    @media (max-width: 700px) { .nav-links { display: none; } }
+
+    .hero { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 40px; align-items: center; padding: 44px 0 64px; }
+    @media (max-width: 860px) { .hero { grid-template-columns: 1fr; gap: 28px; padding: 24px 0 40px; text-align: center; } }
+    .eyebrow { display: inline-block; background: var(--chip); color: var(--accent); font-weight: 800; font-size: 12px; padding: 6px 12px; border-radius: 999px; letter-spacing: 0.3px; }
+    h1 { font-size: clamp(30px, 5.4vw, 52px); line-height: 1.14; letter-spacing: -1.2px; font-weight: 800; margin: 18px 0 0; text-wrap: balance; }
+    h1 .hl { color: var(--accent); }
+    .lede { color: var(--sub); font-size: clamp(15px, 1.6vw, 17px); margin: 18px 0 0; max-width: 30em; }
+    @media (max-width: 860px) { .lede { margin-left: auto; margin-right: auto; } }
+    .cta { display: flex; gap: 12px; margin-top: 28px; flex-wrap: wrap; }
+    @media (max-width: 860px) { .cta { justify-content: center; } }
+    .btn { display: inline-flex; align-items: center; gap: 8px; font-weight: 800; font-size: 15px; padding: 13px 22px; border-radius: 14px; text-decoration: none; border: 1.5px solid transparent; }
+    .btn-primary { background: var(--vivid); color: #fff; box-shadow: 0 4px 14px rgba(0, 168, 61, 0.3); }
+    .btn-primary small { font-weight: 700; opacity: 0.85; font-size: 11px; }
+    .btn-ghost { border-color: var(--line); color: var(--ink); background: var(--card); }
+    .trust { margin-top: 18px; color: var(--faint); font-size: 12.5px; }
+
+    .phone-col { display: flex; justify-content: center; }
+    .phone { width: 300px; background: var(--bg); border-radius: 40px; padding: 12px; border: 1px solid var(--line); box-shadow: var(--shadow); position: relative; }
+    .phone::before { content: ""; position: absolute; top: 16px; left: 50%; transform: translateX(-50%); width: 90px; height: 6px; border-radius: 999px; background: var(--line); }
+    .screen { background: var(--bg); border-radius: 30px; padding: 26px 14px 14px; overflow: hidden; }
+    .app-head { padding: 0 6px 12px; }
+    .app-eyebrow { color: var(--accent); font-weight: 800; font-size: 9px; letter-spacing: 3px; }
+    .app-title { font-weight: 800; font-size: 20px; margin-top: 2px; }
+    .app-hero { background: linear-gradient(155deg, var(--vivid), var(--vivid-2)); border-radius: 18px; padding: 16px; color: #fff; }
+    .app-hero .lbl { font-size: 11px; font-weight: 700; opacity: 0.85; }
+    .app-hero .big { font-size: 34px; font-weight: 800; letter-spacing: -1px; margin-top: 4px; }
+    .app-hero .row { font-size: 12px; font-weight: 700; opacity: 0.9; margin-top: 8px; }
+    .donut-card { background: var(--card); border-radius: 16px; padding: 14px; margin-top: 12px; display: flex; align-items: center; gap: 14px; box-shadow: 0 1px 3px rgba(11,36,24,0.06); }
+    .legend { display: grid; gap: 7px; font-size: 11.5px; }
+    .legend .li { display: flex; align-items: center; gap: 7px; }
+    .dot { width: 10px; height: 10px; border-radius: 3px; }
+    .legend .pct { margin-left: auto; font-weight: 700; color: var(--sub); }
+    .donut-wrap { position: relative; width: 120px; height: 120px; flex: none; }
+    .donut-center { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; }
+    .donut-center .cl { font-size: 9px; color: var(--sub); font-weight: 700; }
+    .donut-center .cv { font-size: 12px; font-weight: 800; margin-top: 1px; }
+    .app-tabs { display: flex; justify-content: space-between; padding: 12px 14px 4px; margin-top: 10px; border-top: 1px solid var(--line); font-size: 11px; font-weight: 700; color: var(--faint); }
+    .app-tabs .on { color: var(--accent); }
+
+    section { padding: 56px 0; }
+    .sec-eyebrow { color: var(--accent); font-weight: 800; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; text-align: center; }
+    h2 { font-size: clamp(24px, 3.4vw, 34px); font-weight: 800; letter-spacing: -0.6px; text-align: center; margin: 8px 0 0; text-wrap: balance; }
+    .sec-sub { color: var(--sub); text-align: center; max-width: 34em; margin: 12px auto 0; font-size: 15px; }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 40px; }
+    @media (max-width: 820px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 520px) { .grid { grid-template-columns: 1fr; } }
+    .feat { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 22px; box-shadow: 0 1px 3px rgba(11,36,24,0.05); }
+    .feat .ic { width: 40px; height: 40px; border-radius: 12px; background: var(--chip); display: grid; place-items: center; font-size: 20px; }
+    .feat h3 { font-size: 16.5px; font-weight: 800; margin: 14px 0 0; }
+    .feat p { color: var(--sub); font-size: 13.5px; margin: 7px 0 0; line-height: 1.65; }
+
+    .band { background: linear-gradient(155deg, var(--vivid), var(--vivid-2)); color: #fff; border-radius: 26px; padding: 44px 32px; text-align: center; margin: 8px 0; }
+    .band h2 { color: #fff; }
+    .band p { color: rgba(255,255,255,0.92); max-width: 32em; margin: 14px auto 0; font-size: 15.5px; }
+    .band .pills { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 22px; }
+    .band .pill { background: rgba(255,255,255,0.18); border-radius: 999px; padding: 8px 16px; font-weight: 700; font-size: 13px; }
+
+    footer { border-top: 1px solid var(--line); padding: 32px 0 48px; margin-top: 40px; color: var(--sub); font-size: 13px; }
+    .foot-top { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .foot-links { display: flex; gap: 20px; flex-wrap: wrap; }
+    .foot-links a { text-decoration: none; color: var(--sub); font-weight: 600; }
+    .foot-links a:hover { color: var(--accent); }
+    .disclaimer { color: var(--faint); font-size: 11.5px; margin-top: 20px; line-height: 1.6; max-width: 60em; }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .reveal { opacity: 0; transform: translateY(14px); animation: rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) forwards; }
+      @keyframes rise { to { opacity: 1; transform: none; } }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav>
+      <div class="brand"><span class="coin">&#165;</span><span>マイ配当</span></div>
+      <div class="nav-links">
+        <a href="#features">機能</a>
+        <a href="#privacy">プライバシー</a>
+        <a href="#get">入手</a>
+      </div>
+    </nav>
+
+    <header class="hero">
+      <div class="reveal">
+        <span class="eyebrow">高配当・NISA の配当管理</span>
+        <h1>年間の配当が、<br><span class="hl">ひと目で</span>わかる。</h1>
+        <p class="lede">
+          保有している配当株・ETF の「年間いくら・いつ入る」を、いちばんシンプルに見える化。
+          証券口座と連携せず、データは端末の中だけ。だから軽くて、プライバシーも安心。
+        </p>
+        <div class="cta" id="get">
+          <a class="btn btn-primary" href="#get">Google Play <small>（近日公開）</small></a>
+          <a class="btn btn-ghost" href="#features">機能を見る</a>
+        </div>
+        <p class="trust">日本株 / ETF / J-REIT / 米国株 / 米国ETF に対応・ドル建ては円換算</p>
+      </div>
+
+      <div class="phone-col reveal" style="animation-delay: 0.1s">
+        <div class="phone" aria-hidden="true">
+          <div class="screen">
+            <div class="app-head">
+              <div class="app-eyebrow">DIVIDEND</div>
+              <div class="app-title">マイ配当</div>
+            </div>
+            <div class="app-hero">
+              <div class="lbl">年間配当 · 税引前</div>
+              <div class="big tnum">13,386円</div>
+              <div class="row tnum">月 1,116円 · 利回り 3.05%</div>
+            </div>
+            <div class="donut-card">
+              <div class="donut-wrap">
+                <svg width="120" height="120" viewBox="0 0 120 120">
+                  <g transform="rotate(-90 60 60)" fill="none" stroke-width="17">
+                    <circle cx="60" cy="60" r="50" stroke="var(--chip)"></circle>
+                    <circle cx="60" cy="60" r="50" stroke="var(--c1)" stroke-dasharray="140 174" stroke-dashoffset="0"></circle>
+                    <circle cx="60" cy="60" r="50" stroke="var(--c2)" stroke-dasharray="135 179" stroke-dashoffset="-142"></circle>
+                    <circle cx="60" cy="60" r="50" stroke="var(--c3)" stroke-dasharray="30 284" stroke-dashoffset="-279"></circle>
+                    <circle cx="60" cy="60" r="50" stroke="var(--c4)" stroke-dasharray="2 312" stroke-dashoffset="-311"></circle>
+                  </g>
+                </svg>
+                <div class="donut-center">
+                  <div class="cl">評価額</div>
+                  <div class="cv tnum">438,216円</div>
+                </div>
+              </div>
+              <div class="legend">
+                <div class="li"><span class="dot" style="background:var(--c1)"></span>米国株<span class="pct tnum">45.3%</span></div>
+                <div class="li"><span class="dot" style="background:var(--c2)"></span>米国ETF<span class="pct tnum">43.8%</span></div>
+                <div class="li"><span class="dot" style="background:var(--c3)"></span>日本株<span class="pct tnum">10.2%</span></div>
+                <div class="li"><span class="dot" style="background:var(--c4)"></span>日本ETF<span class="pct tnum">0.7%</span></div>
+              </div>
+            </div>
+            <div class="app-tabs">
+              <span class="on">保有</span><span>カレンダー</span><span>目標</span><span>設定</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+  </div>
+
+  <section id="features">
+    <div class="wrap">
+      <div class="sec-eyebrow">Features</div>
+      <h2>配当の&quot;見える化&quot;に、必要なぜんぶ。</h2>
+      <p class="sec-sub">記録するだけで、年間配当・利回り・分散・目標まで自動で見えるようになる。すべて無料。</p>
+      <div class="grid">
+        <div class="feat"><div class="ic">📊</div><h3>内訳ドーナツ</h3><p>資産種別・セクター・景気感応度・銘柄 × 評価額／配当 で構成をひと目に。</p></div>
+        <div class="feat"><div class="ic">📅</div><h3>配当カレンダー</h3><p>どの月に・いくら入るかを月別グラフで。受け取りの見通しが立つ。</p></div>
+        <div class="feat"><div class="ic">🎯</div><h3>目標 vs 実績</h3><p>月間・年間配当、利回り、銘柄数、取得額。目標までの達成度を追える。</p></div>
+        <div class="feat"><div class="ic">🏦</div><h3>NISA枠トラッカー</h3><p>非課税と課税を分けて集計。生涯投資枠1,800万円の消化もゲージで。</p></div>
+        <div class="feat"><div class="ic">💴</div><h3>税引後・簿価利回り</h3><p>税引後の手取り、簿価利回り(YOC)、含み損益まで銘柄ごとに。</p></div>
+        <div class="feat"><div class="ic">🔒</div><h3>連携なし・端末内保存</h3><p>証券口座とつながず、データは端末の中だけ。外部に送信しない。</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="privacy">
+    <div class="wrap">
+      <div class="band reveal">
+        <div class="sec-eyebrow" style="color: rgba(255,255,255,0.85)">Privacy first</div>
+        <h2>あなたの資産は、あなたの端末の中だけ。</h2>
+        <p>証券口座と連携しません。入力データは端末内にのみ保存し、外部に送信しません。だから漏れる心配がなく、動作も軽い。バックアップはJSONで自分の手元に書き出せます。</p>
+        <div class="pills">
+          <span class="pill">証券連携なし</span>
+          <span class="pill">外部送信なし</span>
+          <span class="pill">アカウント登録なし</span>
+          <span class="pill">オフライン動作</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <div class="foot-top">
+        <div class="brand"><span class="coin">&#165;</span><span>マイ配当</span></div>
+        <div class="foot-links">
+          <a href="/privacy.html">プライバシーポリシー</a>
+          <a href="#features">機能</a>
+          <a href="#get">入手（近日）</a>
+        </div>
+      </div>
+      <p class="disclaimer">
+        ※「マイ配当」は保有配当の記録・可視化を目的としたツールであり、投資の勧誘・助言を行うものではありません。
+        表示される数値は利用者の手入力に基づく概算です。Google Play および Android は Google LLC の商標です。
+      </p>
+    </div>
+  </footer>
+</body>
+</html>
