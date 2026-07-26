@@ -36,6 +36,7 @@ import { HoldingForm } from "./src/components/HoldingForm";
 import { CalendarView } from "./src/components/CalendarView";
 import { GoalView } from "./src/components/GoalView";
 import { SettingsView } from "./src/components/SettingsView";
+import { CompositionCard } from "./src/components/CompositionCard";
 import { ParsedBackup } from "./src/backup";
 
 type Tab = "holdings" | "calendar" | "goal" | "settings";
@@ -182,6 +183,7 @@ export default function App() {
                   <SummaryHeader holdings={holdings} fx={fx} />
                   {hasUS ? <FxRateBar t={t} fx={fx} onSave={handleSaveFx} /> : null}
                   <AccountSummary holdings={holdings} fx={fx} />
+                  <CompositionCard holdings={holdings} fx={fx} />
                   <SortBar t={t} value={sortKey} onChange={setSortKey} />
                 </>
               ) : null

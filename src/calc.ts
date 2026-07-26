@@ -1,6 +1,6 @@
 import { Holding, AccountType, Cyclicality, Goal, Currency } from "./types";
 import { cyclicalityOf } from "./sectorClassification";
-import { currencyOf, toJPY } from "./assetClass";
+import { currencyOf, toJPY, assetLabel } from "./assetClass";
 
 // 日本株の配当にかかる税率（所得税15.315% + 住民税5% = 20.315%）
 export const TAX_RATE = 0.20315;
@@ -203,6 +203,61 @@ export function cyclicalityBalance(holdings: Holding[], fx: number): Cyclicality
     cyclical: (cyc / total) * 100,
     unknown: (unk / total) * 100,
   };
+}
+
+// ---- 構成比（ドーナツ用・FR-4b） ----------------------------------------
+
+export type CompositionMode = "assetType" | "sector" | "holding";
+export type CompositionSlice = { key: string; label: string; value: number; pct: number };
+
+// 上位いくつまで個別スライスにするか（残りは「その他」に集約）。
+const COMPOSITION_TOP = 6;
+
+// ポートフォリオ構成を円換算評価額で按分。mode で 資産種別／セクター／銘柄 を切替。
+// 評価額の大きい順。上位を超えた分は「その他」にまとめる。合計0なら空配列。
+export function portfolioComposition(
+  holdings: Holding[],
+  fx: number,
+  mode: CompositionMode
+): CompositionSlice[] {
+  const groups = new Map<string, { label: string; value: number }>();
+  for (const h of holdings) {
+    const mv = marketValueJPY(h, fx);
+    if (mv <= 0) continue;
+    let key: string;
+    let label: string;
+    if (mode === "assetType") {
+      key = h.assetType;
+      label = assetLabel(h.assetType);
+    } else if (mode === "sector") {
+      key = h.sector && h.sector.length > 0 ? h.sector : "__unknown";
+      label = h.sector && h.sector.length > 0 ? h.sector : "未分類";
+    } else {
+      key = h.id;
+      label = h.name || h.code || "(名称未設定)";
+    }
+    const g = groups.get(key);
+    if (g) g.value += mv;
+    else groups.set(key, { label, value: mv });
+  }
+
+  const total = [...groups.values()].reduce((s, g) => s + g.value, 0);
+  if (total <= 0) return [];
+
+  const sorted = [...groups.entries()]
+    .map(([key, g]) => ({ key, label: g.label, value: g.value }))
+    .sort((a, b) => b.value - a.value);
+
+  let sliced: { key: string; label: string; value: number }[];
+  if (sorted.length > COMPOSITION_TOP) {
+    const head = sorted.slice(0, COMPOSITION_TOP);
+    const rest = sorted.slice(COMPOSITION_TOP).reduce((s, x) => s + x.value, 0);
+    sliced = [...head, { key: "__other", label: "その他", value: rest }];
+  } else {
+    sliced = sorted;
+  }
+
+  return sliced.map((s) => ({ ...s, pct: (s.value / total) * 100 }));
 }
 
 // ---- 表示ヘルパー（円） ---------------------------------------------------

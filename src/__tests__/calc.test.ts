@@ -25,6 +25,7 @@ import {
   accountLabel,
   goalProgress,
   cyclicalityBalance,
+  portfolioComposition,
   yen,
   signedYen,
   pct,
@@ -50,6 +51,7 @@ function h(over: Partial<Holding> = {}): Holding {
 
 // 代表的な銘柄（三菱商事 8058：日本株・卸売業＝景気敏感）
 const mitsubishi = h({
+  id: "mit",
   code: "8058",
   name: "三菱商事",
   assetType: "jp_stock",
@@ -64,6 +66,7 @@ const mitsubishi = h({
 
 // 米国株（KO コカ・コーラ：USD建て・四半期配当）
 const coke = h({
+  id: "ko",
   code: "KO",
   name: "コカ・コーラ",
   assetType: "us_stock",
@@ -259,6 +262,45 @@ describe("景気感応度バランス（分散の下地）", () => {
 
   test("空ポートフォリオは全て0", () => {
     expect(cyclicalityBalance([], fx)).toEqual({ defensive: 0, cyclical: 0, unknown: 0 });
+  });
+});
+
+describe("構成比（ドーナツ用）", () => {
+  const fx = 150;
+  test("資産種別ごとに円換算評価額で按分・降順・pct合計100", () => {
+    const comp = portfolioComposition([mitsubishi, coke], fx, "assetType");
+    // 三菱商事(日本株) 4×5000=20000 / KO(米国株) 20×62×150=186000
+    expect(comp.map((c) => c.label)).toEqual(["米国株", "日本株"]);
+    expect(comp[0].value).toBeCloseTo(186000, 4);
+    expect(comp[1].value).toBeCloseTo(20000, 4);
+    expect(comp.reduce((s, c) => s + c.pct, 0)).toBeCloseTo(100, 6);
+  });
+
+  test("セクター：sector無しは『未分類』にまとまる", () => {
+    const comp = portfolioComposition([mitsubishi, coke], fx, "sector");
+    const labels = comp.map((c) => c.label);
+    expect(labels).toContain("卸売業"); // 三菱商事
+    expect(labels).toContain("未分類"); // KOはsector未設定
+  });
+
+  test("銘柄モード：各銘柄が1スライス", () => {
+    const comp = portfolioComposition([mitsubishi, coke], fx, "holding");
+    expect(comp.map((c) => c.label).sort()).toEqual(["コカ・コーラ", "三菱商事"]);
+  });
+
+  test("7件超は上位6＋『その他』に集約", () => {
+    const many = Array.from({ length: 9 }, (_, i) =>
+      h({ id: `h${i}`, name: `銘柄${i}`, shares: 1, price: (i + 1) * 100, acquisitionPrice: 1 })
+    );
+    const comp = portfolioComposition(many, fx, "holding");
+    expect(comp.length).toBe(7);
+    expect(comp[comp.length - 1].label).toBe("その他");
+    expect(comp.reduce((s, c) => s + c.pct, 0)).toBeCloseTo(100, 6);
+  });
+
+  test("評価額0（株価0）は除外、全0なら空配列", () => {
+    expect(portfolioComposition([h({ price: 0 })], fx, "assetType")).toEqual([]);
+    expect(portfolioComposition([], fx, "assetType")).toEqual([]);
   });
 });
 

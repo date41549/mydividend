@@ -111,6 +111,7 @@ type Settings = { fxUsdJpy: number };  // 為替レート（1USD=何円、手入
 - **税の分岐（MVPから）**：`account === "nisa"` は非課税として税引後＝税引前。特定・一般は税率 **20.315%** を控除。口座別サマリー（FR-6）もこの分岐で集計。
 - `monthlyDividends`：年間配当を支払月で等分し月別に集計
 - `goalProgress`：目標（月間/年間配当・利回り・銘柄数・取得額）に対する実績と達成率（FR-5）
+- `portfolioComposition`：構成比（資産種別／セクター／上位銘柄）を円換算評価額で按分（FR-4bのドーナツ用）
 - `cyclicalityBalance`：ディフェンシブ／景気敏感の構成比（課金分析、dividend-buy連動）※関数は実装済み・UI未接続
 - `dividendContribution`：銘柄別・業種別の配当金構成比（課金分析 FR-13）※**未実装（v1.2 予定）**
 
@@ -139,6 +140,17 @@ type Settings = { fxUsdJpy: number };  // 為替レート（1USD=何円、手入
 - **単体テスト**：`calc.ts` などの純粋ロジックを対象。`jest` ＋ `@swc/jest`（TSバージョン非依存・高速、`testEnvironment: node`）で RN/Expo に依存せず回す。`src/__tests__/*.test.ts`、実行は `npm test`。
 - `calc.ts` は全公開関数をカバー済み（境界値・null分岐・円換算・混在ポート合算・月別等分・口座別・目標達成率・景気感応度按分・表示整形／27ケース）。
 - UIコンポーネントのテストは今は対象外（純ロジックを calc に寄せてあるため費用対効果が高い層を優先）。将来必要なら jest-expo + React Native Testing Library を追加。
+
+## 可視化（チャート）設計（FR-4b）
+
+「見える化」で無料の第一印象を強くする。基本チャートは軽量に自前実装する。
+
+- **描画基盤**：`react-native-svg`（iOS/Android/Web 共通）。チャート専用の重いライブラリは入れず、ドーナツ＝SVGの円弧、棒＝既存の View で描く（依存を最小化・デザイン完全掌握）。
+- **計算は純関数**：`calc.ts` の `portfolioComposition(holdings, fx, mode)` が `mode`（`assetType`／`sector`／`holding`）ごとに「ラベル・円換算評価額・割合(%)」の配列を返す（テスト可能）。既存の `cyclicalityBalance` も流用。
+- **配色**：`theme.ts` の緑ブランドと調和するカテゴリカル配色（緑を基点に色相を回す固定パレット）。ライト/ダーク両対応。1色は必ずアクセント緑。
+- **コンポーネント**：`components/DonutChart.tsx`（汎用ドーナツ＋中央に合計）＋凡例。保有画面に「配当/資産の内訳」カードとして配置、資産種別／セクター／上位銘柄をチップで切替。
+- **空・少数データ**：0件は非表示、1件は満円、"その他"に小さいスライスを集約。
+- **高度な可視化（ツリーマップ・時系列・ドリルダウン）は FR-13＝課金**に置く。
 
 ## 拡張ポイント（将来）
 
