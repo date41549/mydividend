@@ -51,16 +51,16 @@ export function CompositionCard({ holdings, fx }: { holdings: Holding[]; fx: num
     <View style={s.card}>
       <View style={s.head}>
         <Text style={s.title}>内訳</Text>
-        <View style={s.toggle}>
+        <View style={s.segmented}>
           {METRICS.map((m) => {
             const on = metric === m.key;
             return (
               <Pressable
                 key={m.key}
                 onPress={() => setMetric(m.key)}
-                style={[s.chip, on && s.chipOn]}
+                style={[s.segItem, on && s.segItemOn]}
               >
-                <Text style={[s.chipText, on && s.chipTextOn]}>{m.label}</Text>
+                <Text style={[s.segText, on && s.segTextOn]}>{m.label}</Text>
               </Pressable>
             );
           })}
@@ -68,6 +68,7 @@ export function CompositionCard({ holdings, fx }: { holdings: Holding[]; fx: num
       </View>
 
       <View style={s.modeRow}>
+        <Text style={s.modeLabel}>分け方</Text>
         {MODES.map((m) => {
           const on = mode === m.key;
           return (
@@ -181,7 +182,14 @@ const styles = (t: Theme) =>
     },
     title: { color: t.text, fontSize: 15, fontWeight: "800" },
     toggle: { flexDirection: "row", gap: spacing.xs },
-    modeRow: { flexDirection: "row", flexWrap: "wrap", gap: spacing.xs, marginTop: spacing.sm },
+    modeRow: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      alignItems: "center",
+      gap: spacing.xs,
+      marginTop: spacing.md,
+    },
+    modeLabel: { color: t.faint, fontSize: 11, fontWeight: "700", marginRight: spacing.xs },
     chip: {
       paddingHorizontal: spacing.md,
       paddingVertical: 5,
@@ -192,6 +200,29 @@ const styles = (t: Theme) =>
     chipOn: { backgroundColor: t.primary },
     chipText: { color: t.sub, fontSize: 12, fontWeight: "700" },
     chipTextOn: { color: t.primaryText },
+    // 指標切替＝セグメント（連結トグル）。フィルターチップとは役割が違うので見た目も変える。
+    segmented: { flexDirection: "row", backgroundColor: t.chipBg, borderRadius: 999, padding: 2 },
+    segItem: {
+      paddingHorizontal: spacing.md,
+      paddingVertical: 4,
+      borderRadius: 999,
+      ...Platform.select({ web: { cursor: "pointer" as const }, default: {} }),
+    },
+    segItemOn: {
+      backgroundColor: t.card,
+      ...Platform.select({
+        web: { boxShadow: "0 1px 2px rgba(11,36,24,0.12)" },
+        default: {
+          shadowColor: "#0B2418",
+          shadowOpacity: 0.12,
+          shadowRadius: 2,
+          shadowOffset: { width: 0, height: 1 },
+          elevation: 1,
+        },
+      }),
+    },
+    segText: { color: t.sub, fontSize: 12, fontWeight: "700" },
+    segTextOn: { color: t.primary },
     body: { flexDirection: "row", alignItems: "center", marginTop: spacing.md, gap: spacing.lg },
     center: {
       position: "absolute",
