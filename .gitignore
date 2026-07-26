@@ -39,3 +39,7 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# npmのlockはOS間で完全互換にならず、EASのLinuxで npm ci が壊れるため追跡しない
+# （EASは lock無しだと npm install で新規解決する）
+package-lock.json

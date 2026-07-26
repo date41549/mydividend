@@ -14,8 +14,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
-      - run: npm ci
+      # package-lock.json は追跡しない（OS間非互換でEASビルドが壊れるため）ので npm install を使う
+      - run: npm install
       - name: Type check
         run: npx tsc --noEmit
       - name: Lint

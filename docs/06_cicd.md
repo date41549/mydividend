@@ -41,7 +41,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 20, cache: npm }
-      - run: npm ci
+      - run: npm install
       - run: npx tsc --noEmit          # 型チェック
       - run: npx eslint .              # Lint
       - run: npm test -- --ci          # テスト（calc.ts の純粋関数を優先的に）
@@ -77,7 +77,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 20, cache: npm }
-      - run: npm ci
+      - run: npm install
       - run: npm i -g eas-cli
       - run: eas build --platform all --non-interactive --profile production
         env: { EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }} }
