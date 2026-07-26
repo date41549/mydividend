@@ -181,11 +181,12 @@ export default function App() {
             ListHeaderComponent={
               holdings.length > 0 ? (
                 <>
+                  {/* スクショ一枚目に"映える"順：ヒーロー → 内訳ドーナツ → 詳細 → 実用（為替） */}
                   <SummaryHeader holdings={holdings} fx={fx} />
-                  {hasUS ? <FxRateBar t={t} fx={fx} onSave={handleSaveFx} /> : null}
+                  <CompositionCard holdings={holdings} fx={fx} />
                   <AccountSummary holdings={holdings} fx={fx} />
                   <NisaQuotaCard holdings={holdings} fx={fx} />
-                  <CompositionCard holdings={holdings} fx={fx} />
+                  {hasUS ? <FxRateBar t={t} fx={fx} onSave={handleSaveFx} /> : null}
                   <SortBar t={t} value={sortKey} onChange={setSortKey} />
                 </>
               ) : null
