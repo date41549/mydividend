@@ -69,28 +69,69 @@ export function GoalView({
     );
   }
 
+  // 年間配当を主役のヒーローに、残りはコンパクトに束ねる。
+  const annual = rows.find((r) => r.key === "annual") ?? rows[0];
+  const others = rows.filter((r) => r.key !== annual.key);
+  const annualReached = annual.ratio >= 1;
+  const annualRatio = Math.max(0, Math.min(1, annual.ratio));
+  const remain = Math.max(0, annual.goal - annual.actual);
+
   return (
     <ScrollView contentContainerStyle={s.container}>
-      {rows.map((r) => {
-        const ratio = Math.max(0, Math.min(1, r.ratio));
-        const reached = r.ratio >= 1;
-        return (
-          <View key={r.key} style={s.card}>
-            <View style={s.rowHead}>
-              <Text style={s.label}>{r.label}</Text>
-              <Text style={[s.ratio, reached ? { color: t.positive } : null]}>
-                {Math.round(r.ratio * 100)}%
+      <View style={s.heroCard}>
+        <View style={s.heroTop}>
+          <Text style={s.heroLabel}>年間配当の目標</Text>
+          <Text style={[s.heroRatio, annualReached && { color: t.positive }]}>
+            {Math.round(annual.ratio * 100)}%
+          </Text>
+        </View>
+        <View style={s.heroBar}>
+          <View
+            style={[
+              s.heroFill,
+              { width: `${annualRatio * 100}%`, backgroundColor: annualReached ? t.positive : t.primary },
+            ]}
+          />
+        </View>
+        <View style={s.heroFoot}>
+          <Text style={s.heroAmount}>
+            {yen(annual.actual)} / {yen(annual.goal)}
+          </Text>
+          <Text style={[s.heroRemain, annualReached && { color: t.positive }]}>
+            {annualReached ? "🎉 達成！" : `あと ${yen(remain)}`}
+          </Text>
+        </View>
+      </View>
+
+      <View style={s.card}>
+        {others.map((r, i) => {
+          const ratio = Math.max(0, Math.min(1, r.ratio));
+          const reached = r.ratio >= 1;
+          return (
+            <View key={r.key} style={[s.metricRow, i > 0 && s.metricRowBorder]}>
+              <View style={s.metricHead}>
+                <Text style={s.label}>{r.label}</Text>
+                <Text style={[s.ratio, reached && { color: t.positive }]}>
+                  {reached ? "✓ " : ""}
+                  {Math.round(r.ratio * 100)}%
+                </Text>
+              </View>
+              <View style={s.miniTrack}>
+                <View
+                  style={[
+                    s.miniFill,
+                    { width: `${ratio * 100}%`, backgroundColor: reached ? t.positive : t.primary },
+                  ]}
+                />
+              </View>
+              <Text style={s.detail}>
+                {formatActual(r)} / {formatGoal(r)}
               </Text>
             </View>
-            <View style={s.barTrack}>
-              <View style={[s.barFill, { width: `${ratio * 100}%`, backgroundColor: reached ? t.positive : t.primary }]} />
-            </View>
-            <Text style={s.detail}>
-              {formatActual(r)} / {formatGoal(r)}
-            </Text>
-          </View>
-        );
-      })}
+          );
+        })}
+      </View>
+
       <Pressable style={s.editBtn} onPress={() => { setDraft(goal); setEditing(true); }}>
         <Text style={s.editBtnText}>目標を編集</Text>
       </Pressable>
@@ -152,6 +193,43 @@ const styles = (t: Theme) =>
       ...cardShadow,
     },
     title: { color: t.text, fontSize: 16, fontWeight: "700", marginBottom: spacing.sm },
+    heroCard: {
+      backgroundColor: t.card,
+      borderRadius: radius.md,
+      padding: spacing.lg,
+      marginBottom: spacing.md,
+      ...cardShadow,
+    },
+    heroTop: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+    heroLabel: { color: t.sub, fontSize: 13, fontWeight: "700" },
+    heroRatio: { color: t.primary, fontSize: 34, fontWeight: "800", letterSpacing: -1, fontVariant: ["tabular-nums"] },
+    heroBar: {
+      height: 18,
+      backgroundColor: t.chipBg,
+      borderRadius: radius.sm,
+      marginTop: spacing.sm,
+      overflow: "hidden",
+    },
+    heroFill: { height: "100%", borderRadius: radius.sm },
+    heroFoot: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginTop: spacing.sm,
+    },
+    heroAmount: { color: t.text, fontSize: 13, fontWeight: "700", fontVariant: ["tabular-nums"] },
+    heroRemain: { color: t.sub, fontSize: 13, fontWeight: "700", fontVariant: ["tabular-nums"] },
+    metricRow: { paddingVertical: spacing.md },
+    metricRowBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: t.border },
+    metricHead: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+    miniTrack: {
+      height: 8,
+      backgroundColor: t.chipBg,
+      borderRadius: 999,
+      marginTop: spacing.sm,
+      overflow: "hidden",
+    },
+    miniFill: { height: "100%", borderRadius: 999 },
     rowHead: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
     label: { color: t.text, fontSize: 15, fontWeight: "700" },
     ratio: { color: t.text, fontSize: 16, fontWeight: "800", fontVariant: ["tabular-nums"] },
