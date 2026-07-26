@@ -9,6 +9,7 @@ import {
   ScrollView,
   Alert,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Holding, HoldingInput, AccountType, AssetType } from "../types";
 import { SECTOR_LIST } from "../sectorClassification";
 import { ASSET_TYPES, currencyOf, currencySymbol } from "../assetClass";
@@ -37,6 +38,7 @@ export function HoldingForm({
 }) {
   const t = useTheme();
   const s = styles(t);
+  const insets = useSafeAreaInsets();
 
   const [code, setCode] = useState("");
   const [name, setName] = useState("");
@@ -120,7 +122,7 @@ export function HoldingForm({
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-      <View style={s.screen}>
+      <View style={[s.screen, { paddingTop: insets.top }]}>
         <View style={s.header}>
           <Pressable onPress={onClose} hitSlop={8}>
             <Text style={s.headerCancel}>閉じる</Text>
@@ -131,7 +133,10 @@ export function HoldingForm({
           </Pressable>
         </View>
 
-        <ScrollView contentContainerStyle={s.body} keyboardShouldPersistTaps="handled">
+        <ScrollView
+          contentContainerStyle={[s.body, { paddingBottom: spacing.xl + insets.bottom }]}
+          keyboardShouldPersistTaps="handled"
+        >
           <Text style={s.label}>資産種別</Text>
           <View style={s.chips}>
             {ASSET_TYPES.map((a) => (

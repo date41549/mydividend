@@ -6,10 +6,10 @@ import {
   FlatList,
   Pressable,
   ActivityIndicator,
-  SafeAreaView,
   TextInput,
   Platform,
 } from "react-native";
+import { SafeAreaProvider, useSafeAreaInsets } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { Holding, HoldingInput, Goal, DEFAULT_GOAL, Settings, DEFAULT_SETTINGS } from "./src/types";
 import {
@@ -76,9 +76,19 @@ function sortHoldings(hs: Holding[], key: SortKey, fx: number): Holding[] {
   }
 }
 
+// SafeAreaProvider でラップして端末のセーフエリア（ステータスバー/ナビバー）を取得できるように。
 export default function App() {
+  return (
+    <SafeAreaProvider>
+      <AppMain />
+    </SafeAreaProvider>
+  );
+}
+
+function AppMain() {
   const t = useTheme();
   const s = styles(t);
+  const insets = useSafeAreaInsets();
 
   const [loading, setLoading] = useState(true);
   const [holdings, setHoldings] = useState<Holding[]>([]);
@@ -165,10 +175,10 @@ export default function App() {
   }
 
   return (
-    <SafeAreaView style={s.screen}>
+    <View style={s.screen}>
       <StatusBar style="auto" />
 
-      <View style={s.titleBar}>
+      <View style={[s.titleBar, { paddingTop: spacing.md + insets.top }]}>
         <Text style={s.brand}>DIVIDEND</Text>
         <Text style={s.title}>マイ配当</Text>
       </View>
@@ -207,12 +217,12 @@ export default function App() {
       </View>
 
       {tab === "holdings" && (
-        <Pressable style={s.fab} onPress={openAdd}>
+        <Pressable style={[s.fab, { bottom: 72 + insets.bottom }]} onPress={openAdd}>
           <Text style={s.fabText}>＋</Text>
         </Pressable>
       )}
 
-      <View style={s.tabBar}>
+      <View style={[s.tabBar, { paddingBottom: spacing.sm + insets.bottom }]}>
         {TABS.map((x) => (
           <Pressable key={x.key} style={s.tabItem} onPress={() => setTab(x.key)}>
             <View style={[s.tabPill, tab === x.key && s.tabPillOn]}>
@@ -234,7 +244,7 @@ export default function App() {
           setEditing(null);
         }}
       />
-    </SafeAreaView>
+    </View>
   );
 }
 
