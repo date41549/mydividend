@@ -302,6 +302,18 @@ describe("構成比（ドーナツ用）", () => {
     expect(portfolioComposition([h({ price: 0 })], fx, "assetType")).toEqual([]);
     expect(portfolioComposition([], fx, "assetType")).toEqual([]);
   });
+
+  test("配当ベース：年間配当で按分（株価0でも配当があれば残る）", () => {
+    const comp = portfolioComposition([mitsubishi, coke], fx, "assetType", "dividend");
+    // 三菱商事 4×125=500 / KO 20×1.94×150=5820
+    expect(comp.map((c) => c.label)).toEqual(["米国株", "日本株"]);
+    expect(comp.find((c) => c.label === "日本株")!.value).toBeCloseTo(500, 4);
+    expect(comp.find((c) => c.label === "米国株")!.value).toBeCloseTo(5820, 4);
+    // 株価0でも配当があれば構成に含まれる（評価額ベースとの違い）
+    const noPrice = h({ id: "np", price: 0, shares: 10, dividendPerShare: 5 });
+    expect(portfolioComposition([noPrice], fx, "holding", "dividend")).toHaveLength(1);
+    expect(portfolioComposition([noPrice], fx, "holding", "value")).toHaveLength(0);
+  });
 });
 
 describe("表示ヘルパー", () => {

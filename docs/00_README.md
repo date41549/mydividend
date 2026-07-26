@@ -33,6 +33,7 @@
 - **JSONバックアップ（FR-10）実装済み**（設定タブ：エクスポート／インポート）
 - **アプリ名決定：「マイ配当」**（ASO＋競合調査で確定。App Store/Play同名なし、`com.datz.mydividend` はPlay空き確認済み）
 - **アプリアイコン・スプラッシュ実装済み**（緑の¥コイン。`scripts/gen-icons.mjs` で再生成可。表示名「マイ配当」・ダーク対応）
+- **構成ドーナツ(FR-4b)実装済み**（保有画面「内訳」：資産種別/セクター/銘柄 × 評価額/配当。react-native-svg・色覚安全な検証済みパレット）
 - **リリース準備着手**：ESLint導入（lint/型/テストの3ゲート緑）、`.github/workflows/`（CI＋タグでEASビルド）、`eas.json`、app.jsonに識別子（`com.datz.mydividend`）、`docs/privacy_policy.md` 起草
 - 残（伊達さん側が主）：実機CRUDテスト → Apple/Google登録・`eas init`/`EXPO_TOKEN` → プライバシーポリシー公開URL・スクショ → EASビルド/審査（05,06）
 

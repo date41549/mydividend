@@ -208,22 +208,24 @@ export function cyclicalityBalance(holdings: Holding[], fx: number): Cyclicality
 // ---- 構成比（ドーナツ用・FR-4b） ----------------------------------------
 
 export type CompositionMode = "assetType" | "sector" | "holding";
+export type CompositionMetric = "value" | "dividend";
 export type CompositionSlice = { key: string; label: string; value: number; pct: number };
 
 // 上位いくつまで個別スライスにするか（残りは「その他」に集約）。
 const COMPOSITION_TOP = 6;
 
-// ポートフォリオ構成を円換算評価額で按分。mode で 資産種別／セクター／銘柄 を切替。
-// 評価額の大きい順。上位を超えた分は「その他」にまとめる。合計0なら空配列。
+// ポートフォリオ構成を円換算で按分。mode で 資産種別／セクター／銘柄、metric で 評価額／年間配当 を切替。
+// 大きい順。上位を超えた分は「その他」にまとめる。合計0なら空配列。
 export function portfolioComposition(
   holdings: Holding[],
   fx: number,
-  mode: CompositionMode
+  mode: CompositionMode,
+  metric: CompositionMetric = "value"
 ): CompositionSlice[] {
   const groups = new Map<string, { label: string; value: number }>();
   for (const h of holdings) {
-    const mv = marketValueJPY(h, fx);
-    if (mv <= 0) continue;
+    const v = metric === "dividend" ? annualDividendJPY(h, fx) : marketValueJPY(h, fx);
+    if (v <= 0) continue;
     let key: string;
     let label: string;
     if (mode === "assetType") {
@@ -237,8 +239,8 @@ export function portfolioComposition(
       label = h.name || h.code || "(名称未設定)";
     }
     const g = groups.get(key);
-    if (g) g.value += mv;
-    else groups.set(key, { label, value: mv });
+    if (g) g.value += v;
+    else groups.set(key, { label, value: v });
   }
 
   const total = [...groups.values()].reduce((s, g) => s + g.value, 0);

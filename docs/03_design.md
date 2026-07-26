@@ -111,7 +111,7 @@ type Settings = { fxUsdJpy: number };  // 為替レート（1USD=何円、手入
 - **税の分岐（MVPから）**：`account === "nisa"` は非課税として税引後＝税引前。特定・一般は税率 **20.315%** を控除。口座別サマリー（FR-6）もこの分岐で集計。
 - `monthlyDividends`：年間配当を支払月で等分し月別に集計
 - `goalProgress`：目標（月間/年間配当・利回り・銘柄数・取得額）に対する実績と達成率（FR-5）
-- `portfolioComposition`：構成比（資産種別／セクター／上位銘柄）を円換算評価額で按分（FR-4bのドーナツ用）
+- `portfolioComposition`：構成比（資産種別／セクター／上位銘柄 × 評価額／配当）を円換算で按分（FR-4bのドーナツ用）
 - `cyclicalityBalance`：ディフェンシブ／景気敏感の構成比（課金分析、dividend-buy連動）※関数は実装済み・UI未接続
 - `dividendContribution`：銘柄別・業種別の配当金構成比（課金分析 FR-13）※**未実装（v1.2 予定）**
 
@@ -146,7 +146,7 @@ type Settings = { fxUsdJpy: number };  // 為替レート（1USD=何円、手入
 「見える化」で無料の第一印象を強くする。基本チャートは軽量に自前実装する。
 
 - **描画基盤**：`react-native-svg`（iOS/Android/Web 共通）。チャート専用の重いライブラリは入れず、ドーナツ＝SVGの円弧、棒＝既存の View で描く（依存を最小化・デザイン完全掌握）。
-- **計算は純関数**：`calc.ts` の `portfolioComposition(holdings, fx, mode)` が `mode`（`assetType`／`sector`／`holding`）ごとに「ラベル・円換算評価額・割合(%)」の配列を返す（テスト可能）。既存の `cyclicalityBalance` も流用。
+- **計算は純関数**：`calc.ts` の `portfolioComposition(holdings, fx, mode, metric)` が `mode`（`assetType`／`sector`／`holding`）× `metric`（`value`＝評価額／`dividend`＝年間配当）ごとに「ラベル・円換算値・割合(%)」の配列を返す（テスト可能）。上位6＋「その他」集約。既存の `cyclicalityBalance` も流用。
 - **配色**：`theme.ts` の緑ブランドと調和するカテゴリカル配色（緑を基点に色相を回す固定パレット）。ライト/ダーク両対応。1色は必ずアクセント緑。
 - **コンポーネント**：`components/DonutChart.tsx`（汎用ドーナツ＋中央に合計）＋凡例。保有画面に「配当/資産の内訳」カードとして配置、資産種別／セクター／上位銘柄をチップで切替。
 - **空・少数データ**：0件は非表示、1件は満円、"その他"に小さいスライスを集約。

@@ -2,7 +2,16 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet, Pressable, Platform } from "react-native";
 import Svg, { Circle } from "react-native-svg";
 import { Holding } from "../types";
-import { portfolioComposition, totalMarketValue, CompositionMode, CompositionSlice, yen, pct } from "../calc";
+import {
+  portfolioComposition,
+  totalMarketValue,
+  totalAnnual,
+  CompositionMode,
+  CompositionMetric,
+  CompositionSlice,
+  yen,
+  pct,
+} from "../calc";
 import { Theme, useTheme, spacing, radius } from "../theme";
 
 // カテゴリカル配色（dataviz バリデータでライト/ダーク両方 全チェックPASS：順序固定・色覚安全・地色コントラストOK）。
@@ -12,6 +21,11 @@ const MODES: { key: CompositionMode; label: string }[] = [
   { key: "assetType", label: "資産種別" },
   { key: "sector", label: "セクター" },
   { key: "holding", label: "銘柄" },
+];
+
+const METRICS: { key: CompositionMetric; label: string }[] = [
+  { key: "value", label: "評価額" },
+  { key: "dividend", label: "配当" },
 ];
 
 // スライスの色。「その他」「未分類」は中立グレー、それ以外は固定パレット順。
@@ -25,8 +39,10 @@ export function CompositionCard({ holdings, fx }: { holdings: Holding[]; fx: num
   const t = useTheme();
   const s = styles(t);
   const [mode, setMode] = useState<CompositionMode>("assetType");
-  const data = portfolioComposition(holdings, fx, mode);
-  const total = totalMarketValue(holdings, fx);
+  const [metric, setMetric] = useState<CompositionMetric>("value");
+  const data = portfolioComposition(holdings, fx, mode, metric);
+  const total = metric === "dividend" ? totalAnnual(holdings, fx) : totalMarketValue(holdings, fx);
+  const centerLabel = metric === "dividend" ? "年間配当" : "評価額";
 
   if (data.length === 0) return null;
 
@@ -35,10 +51,14 @@ export function CompositionCard({ holdings, fx }: { holdings: Holding[]; fx: num
       <View style={s.head}>
         <Text style={s.title}>内訳</Text>
         <View style={s.toggle}>
-          {MODES.map((m) => {
-            const on = mode === m.key;
+          {METRICS.map((m) => {
+            const on = metric === m.key;
             return (
-              <Pressable key={m.key} onPress={() => setMode(m.key)} style={[s.chip, on && s.chipOn]}>
+              <Pressable
+                key={m.key}
+                onPress={() => setMetric(m.key)}
+                style={[s.chip, on && s.chipOn]}
+              >
                 <Text style={[s.chipText, on && s.chipTextOn]}>{m.label}</Text>
               </Pressable>
             );
@@ -46,8 +66,19 @@ export function CompositionCard({ holdings, fx }: { holdings: Holding[]; fx: num
         </View>
       </View>
 
+      <View style={s.modeRow}>
+        {MODES.map((m) => {
+          const on = mode === m.key;
+          return (
+            <Pressable key={m.key} onPress={() => setMode(m.key)} style={[s.chip, on && s.chipOn]}>
+              <Text style={[s.chipText, on && s.chipTextOn]}>{m.label}</Text>
+            </Pressable>
+          );
+        })}
+      </View>
+
       <View style={s.body}>
-        <Donut data={data} total={total} t={t} />
+        <Donut data={data} total={total} centerLabel={centerLabel} t={t} />
         <View style={s.legend}>
           {data.map((slice, i) => (
             <View key={slice.key} style={s.legendRow}>
@@ -64,7 +95,17 @@ export function CompositionCard({ holdings, fx }: { holdings: Holding[]; fx: num
   );
 }
 
-function Donut({ data, total, t }: { data: CompositionSlice[]; total: number; t: Theme }) {
+function Donut({
+  data,
+  total,
+  centerLabel,
+  t,
+}: {
+  data: CompositionSlice[];
+  total: number;
+  centerLabel: string;
+  t: Theme;
+}) {
   const s = styles(t);
   const size = 132;
   const thickness = 20;
@@ -75,34 +116,32 @@ function Donut({ data, total, t }: { data: CompositionSlice[]; total: number; t:
 
   return (
     <View style={{ width: size, height: size }}>
-      {/* 12時開始にするため Svg を包む View ごと -90°回す（web でも安全）。中央テキストは回さない */}
-      <View style={{ transform: [{ rotate: "-90deg" }] }}>
-        <Svg width={size} height={size}>
-          <Circle cx={c} cy={c} r={r} stroke={t.chipBg} strokeWidth={thickness} fill="none" />
-          {data.map((slice, i) => {
-            // 開始位置＝手前スライスの累積（純粋計算・n≤7なので前方合計でOK）
-            const startPct = data.slice(0, i).reduce((sum, x) => sum + x.pct, 0);
-            const offset = (C * startPct) / 100;
-            const arc = (C * slice.pct) / 100;
-            const dash = Math.max(arc - gap, 0.6);
-            return (
-              <Circle
-                key={slice.key}
-                cx={c}
-                cy={c}
-                r={r}
-                stroke={sliceColor(slice, i, t.faint)}
-                strokeWidth={thickness}
-                fill="none"
-                strokeDasharray={`${dash} ${C - dash}`}
-                strokeDashoffset={-offset}
-              />
-            );
-          })}
-        </Svg>
-      </View>
+      <Svg width={size} height={size}>
+        <Circle cx={c} cy={c} r={r} stroke={t.chipBg} strokeWidth={thickness} fill="none" />
+        {data.map((slice, i) => {
+          // 開始位置＝手前スライスの累積（純粋計算・n≤7なので前方合計でOK）。
+          // 回転transformを使わず、dashoffset に 1/4周(C/4)足して 12時開始・時計回りにする。
+          const startPct = data.slice(0, i).reduce((sum, x) => sum + x.pct, 0);
+          const offset = (C * startPct) / 100;
+          const arc = (C * slice.pct) / 100;
+          const dash = Math.max(arc - gap, 0.6);
+          return (
+            <Circle
+              key={slice.key}
+              cx={c}
+              cy={c}
+              r={r}
+              stroke={sliceColor(slice, i, t.faint)}
+              strokeWidth={thickness}
+              fill="none"
+              strokeDasharray={`${dash} ${C - dash}`}
+              strokeDashoffset={C / 4 - offset}
+            />
+          );
+        })}
+      </Svg>
       <View style={s.center} pointerEvents="none">
-        <Text style={s.centerLabel}>評価額</Text>
+        <Text style={s.centerLabel}>{centerLabel}</Text>
         <Text style={s.centerValue} numberOfLines={1}>
           {yen(total)}
         </Text>
@@ -141,6 +180,7 @@ const styles = (t: Theme) =>
     },
     title: { color: t.text, fontSize: 15, fontWeight: "800" },
     toggle: { flexDirection: "row", gap: spacing.xs },
+    modeRow: { flexDirection: "row", gap: spacing.xs, marginTop: spacing.sm },
     chip: {
       paddingHorizontal: spacing.md,
       paddingVertical: 5,
