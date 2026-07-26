@@ -28,19 +28,30 @@
 - **データ源**：MVPは手入力（規約・法律・コストを回避）。将来 J-Quants を検討
 - **技術**：Expo + TypeScript、AsyncStorage、MVPはシンプルなタブUI
 
-## 現状
+## 現状（2026-07-26 時点）
 
-- **MVP（FR-1〜9）コード実装完了**（保有CRUD・円換算・並び替え・サマリー・カレンダー・目標・口座別・永続化・免責・外部リンク）
-- UI/UX を B（明るくポップ＋データ密）で刷新済み。アフォーダンス整備済み（`08_ui_ux_design.md`）
-- **単体テスト導入済み**（jest＋@swc/jest、calc＋backup で37ケース全パス。`npm test`）
-- **JSONバックアップ（FR-10）実装済み**（設定タブ：エクスポート／インポート）
-- **アプリ名決定：「マイ配当」**（ASO＋競合調査で確定。App Store/Play同名なし、`com.datz.mydividend` はPlay空き確認済み）
-- **アプリアイコン・スプラッシュ実装済み**（緑の¥コイン。`scripts/gen-icons.mjs` で再生成可。表示名「マイ配当」・ダーク対応）
-- **構成ドーナツ(FR-4b)実装済み**（保有画面「内訳」：資産種別/セクター/銘柄 × 評価額/配当。react-native-svg・色覚安全な検証済みパレット）
-- **リリース準備着手**：ESLint導入（lint/型/テストの3ゲート緑）、`.github/workflows/`（CI＋タグでEASビルド）、`eas.json`、app.jsonに識別子（`com.datz.mydividend`）、`docs/privacy_policy.md` 起草
-- 残（伊達さん側が主）：実機CRUDテスト → Apple/Google登録・`eas init`/`EXPO_TOKEN` → プライバシーポリシー公開URL・スクショ → EASビルド/審査（05,06）
+### アプリ実装（MVP＋v1.1/v1.2の一部まで完成）
+- UI/UXを **B（明るくポップ＋データ密／緑の¥コイン）** で刷新・アフォーダンス整備（`08`）・**セーフエリア対応**・ダーク対応
+- 保有CRUD・円換算・並び替え・サマリー・カレンダー・目標・口座別・永続化・免責・外部リンク（FR-1〜9）
+- **JSONバックアップ(FR-10)** ／ **内訳ドーナツ(FR-4b：資産種別/セクター/景気感応度/銘柄 × 評価額/配当)** ／ **NISA生涯枠ゲージ(FR-11)** ／ **簿価利回りヒストグラム(FR-14)**
+- アイコン/スプラッシュ（緑¥コイン・`scripts/gen-icons.mjs`）・表示名「マイ配当」
+- **品質**：ESLint＋型＋単体テスト(calc/backup **47ケース**)の3ゲート緑・CI(`.github/workflows`)・**expo-doctor 20/20**
+- **識別子**：bundle id `com.datz.mydividend`
+
+### 公開準備（素材はほぼ完成）
+- **LP**：`https://mydividend.datz.app`（リポの `site/` を Cloudflare Pages にGit連携で自動デプロイ）＋ **OG画像**(`site/og.png`)
+- **プライバシーポリシー**：`https://mydividend.datz.app/privacy.html`（連絡先 `hello@datz.app`）
+- **ストア掲載文**：`store_listing.md`（名前/サブ/キーワード/説明/スクショ構成）
+- **ドメイン**：`datz.app`（Cloudflare・屋号アンブレラ）／メール `hello@datz.app`（個人Gmailへ転送）
+- **EAS**：`eas init`済み・**Android実機ビルド成功＆インストール確認済み**（`package-lock.json`を追跡せず `npm install` 運用でLinuxビルドのlock不整合を回避）
+
+### ⏳ 待ち／次（Play本人確認が解けたら再開）
+- **Google Play 開発者アカウント 本人確認中（数日）** ← ここが解けるまで公開作業は停止中
+- 承認後：クローズドテスト設定 → AABアップ → **12人×14日**（知人をPlay経由＋Discord相互）→ 審査 → 公開。公開時にLPの「近日公開」をPlay URLへ差し替え
+- iOS未着手（Macありなのでシミュレータ可）／広告・課金(v1.2〜)はEAS Dev Build時に
 
 ## 開発の進め方（ルール）
 
 - **要件定義（02）・基本設計（03）・UI/UX（08）を"正"として実装する。** 場当たりで機能を足さない。
 - **方針・仕様が変わったら、コードより先に該当ドキュメントを更新する。** 実装とドキュメントの乖離を残さない。
+- **リポ**：GitHub `date41549/mydividend`（private）。**commit→push で Cloudflare Pages が `site/` を自動デプロイ**。UI変更後は3ゲート（型/lint/test）を通す。
