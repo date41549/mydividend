@@ -240,10 +240,15 @@ function EmptyState({ t, onAdd }: { t: Theme; onAdd: () => void }) {
   const s = styles(t);
   return (
     <View style={s.empty}>
-      <Text style={s.emptyTitle}>まだ銘柄がありません</Text>
-      <Text style={s.emptySub}>最初の高配当株を追加しよう</Text>
+      <View style={s.emptyCoin}>
+        <Text style={s.emptyCoinText}>¥</Text>
+      </View>
+      <Text style={s.emptyTitle}>マイ配当へようこそ</Text>
+      <Text style={s.emptySub}>
+        保有を追加すると、年間配当・利回り・月別カレンダー・目標まで自動で見える化。データは端末の中だけで安心。
+      </Text>
       <Pressable style={s.emptyBtn} onPress={onAdd}>
-        <Text style={s.emptyBtnText}>＋ 銘柄を追加</Text>
+        <Text style={s.emptyBtnText}>＋ 最初の銘柄を追加</Text>
       </Pressable>
     </View>
   );
@@ -403,17 +408,35 @@ const styles = (t: Theme) =>
     tabPillOn: { backgroundColor: t.chipBg },
     tabText: { color: t.sub, fontSize: 13, fontWeight: "600" },
     tabTextOn: { color: t.primary, fontWeight: "800" },
-    empty: { alignItems: "center", padding: spacing.xl, marginTop: spacing.xl },
-    emptyTitle: { color: t.text, fontSize: 18, fontWeight: "700" },
-    emptySub: { color: t.sub, fontSize: 14, marginTop: spacing.xs },
+    empty: { alignItems: "center", paddingHorizontal: spacing.xl, paddingTop: spacing.xxl * 2 },
+    emptyCoin: {
+      width: 76,
+      height: 76,
+      borderRadius: 38,
+      backgroundColor: t.primary,
+      alignItems: "center",
+      justifyContent: "center",
+      marginBottom: spacing.lg,
+    },
+    emptyCoinText: { color: t.primaryText, fontSize: 40, fontWeight: "800", marginTop: -2 },
+    emptyTitle: { color: t.text, fontSize: 20, fontWeight: "800" },
+    emptySub: {
+      color: t.sub,
+      fontSize: 13.5,
+      marginTop: spacing.sm,
+      textAlign: "center",
+      lineHeight: 21,
+      maxWidth: 320,
+    },
     emptyBtn: {
-      marginTop: spacing.lg,
+      marginTop: spacing.xl,
       backgroundColor: t.primary,
       paddingHorizontal: spacing.xl,
       paddingVertical: spacing.md,
       borderRadius: radius.md,
+      ...Platform.select({ web: { cursor: "pointer" as const }, default: {} }),
     },
-    emptyBtnText: { color: t.primaryText, fontWeight: "700", fontSize: 15 },
+    emptyBtnText: { color: t.primaryText, fontWeight: "800", fontSize: 15 },
     disclaimer: {
       color: t.sub,
       fontSize: 11,
