@@ -48,7 +48,8 @@
 ### ⏳ 待ち／次（Play本人確認が解けたら再開）
 - **Google Play 開発者アカウント 本人確認中（数日）** ← ここが解けるまで公開作業は停止中
 - 承認後：クローズドテスト設定 → AABアップ → **12人×14日**（知人をPlay経由＋Discord相互）→ 審査 → 公開。公開時にLPの「近日公開」をPlay URLへ差し替え
-- iOS未着手（Macありなのでシミュレータ可）／広告・課金(v1.2〜)はEAS Dev Build時に
+- **iOSも進行中**：Macシミュレータ(iPhone 15 Pro Max)で動作確認済み＋**App Store用スクショ5枚撮影済み**（1290×2796）。**Apple Developer 登録申請済み（アクティベーション待ち）**。承認後に `eas build -p ios`→TestFlight(12人ゲート無し)→App Store審査
+- 広告・課金(v1.2〜)はEAS Dev Build時に
 
 ## 開発の進め方（ルール）
 

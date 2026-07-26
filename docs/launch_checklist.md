@@ -3,8 +3,10 @@
 コードは完成済み。ここから先の「アカウント・ビルド・テスター・ストア」を順番にやるための手順。
 細かい背景は [05_release_process.md](05_release_process.md)、掲載文は [store_listing.md](store_listing.md)。
 
-> **現在地（2026-07-26）**：Android先行で進行中。**Phase 0〜1 はほぼ完了**（`eas init`済み・**Android実機ビルド成功＆インストール確認**・LP `mydividend.datz.app` 公開・プライバシーポリシー/連絡先/OG/掲載文 用意済み）。
-> **いまの唯一のブロッカー＝Google Play 開発者アカウントの本人確認中（数日）**。承認が下りたら **Phase 2（クローズドテスト設定＋テスター12人×14日）** から再開する。
+> **現在地（2026-07-26）**：Android・iOS 両方を並行で準備。**Phase 0〜1 はほぼ完了**（`eas init`済み・**Android実機ビルド成功＆インストール確認**・**iOSもMacシミュレータで動作確認＋App Store用スクショ5枚撮影済み**・LP `mydividend.datz.app` 公開・プライバシーポリシー/連絡先/OG/掲載文 用意済み）。
+> **ブロッカー＝Google Play 本人確認中／Apple Developer アクティベーション待ち（どちらも数日）**。
+> - Google承認後 → **Phase 2（クローズドテスト＋テスター12人×14日）**。※12人×14日は**アカウント単位・初回のみ**（2本目以降のアプリは不要）。
+> - Apple承認後 → `eas build -p ios`→`eas submit`→**TestFlight（12人ゲート無し）**→掲載情報＋スクショ→審査。
 
 ## 事前の方針決め
 - **どのストアに出す？**
