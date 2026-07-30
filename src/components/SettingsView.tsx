@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, ScrollView, TextInput, Pressable, Platform } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TextInput, Pressable, Platform, Switch } from "react-native";
 import * as Clipboard from "expo-clipboard";
 import { Holding, Goal, Settings } from "../types";
 import { buildBackup, parseBackup, ParsedBackup } from "../backup";
@@ -11,11 +11,13 @@ export function SettingsView({
   goal,
   settings,
   onImport,
+  onToggleNotify,
 }: {
   holdings: Holding[];
   goal: Goal;
   settings: Settings;
   onImport: (data: ParsedBackup) => void;
+  onToggleNotify: (on: boolean) => void;
 }) {
   const t = useTheme();
   const s = styles(t);
@@ -80,6 +82,21 @@ export function SettingsView({
 
   return (
     <ScrollView contentContainerStyle={s.container} keyboardShouldPersistTaps="handled">
+      {/* 通知（FR-17） */}
+      <View style={s.card}>
+        <View style={s.toggleRow}>
+          <View style={s.toggleTexts}>
+            <Text style={s.cardTitle}>配当月リマインド</Text>
+            <Text style={s.desc}>配当が入る月の初めに「今月は配当月」と通知します。</Text>
+          </View>
+          <Switch
+            value={settings.notifyDividendMonth}
+            onValueChange={onToggleNotify}
+            trackColor={{ true: t.primary }}
+          />
+        </View>
+      </View>
+
       {/* エクスポート */}
       <View style={s.card}>
         <Text style={s.cardTitle}>データのバックアップ</Text>
@@ -179,6 +196,8 @@ const styles = (t: Theme) =>
       ...cardShadow,
     },
     cardTitle: { color: t.text, fontSize: 16, fontWeight: "800" },
+    toggleRow: { flexDirection: "row", alignItems: "center", gap: spacing.md },
+    toggleTexts: { flex: 1 },
     desc: { color: t.sub, fontSize: 12.5, lineHeight: 18, marginTop: spacing.xs },
     descWarn: { color: t.negative, fontWeight: "700" },
     actions: { flexDirection: "row", gap: spacing.sm, marginTop: spacing.md },

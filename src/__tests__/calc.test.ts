@@ -22,6 +22,7 @@ import {
   totalUnrealizedPL,
   portfolioYield,
   monthlyDividends,
+  dividendMonths,
   accountSummary,
   accountLabel,
   goalProgress,
@@ -213,6 +214,25 @@ describe("月別配当（支払月で等分）", () => {
     const m = monthlyDividends([coke], fx);
     const perQ = (38.8 * 150) / 4;
     [2, 5, 8, 11].forEach((i) => expect(m[i]).toBeCloseTo(perQ, 4));
+  });
+});
+
+describe("配当月サマリー（通知用・dividendMonths）", () => {
+  const fx = 150;
+  test("各月の金額と銘柄数を返す（支払月で等分）", () => {
+    // mitsubishi[3,9] 各250円 / coke[3,6,9,12] 各 5820/4=1455円
+    const dm = dividendMonths([mitsubishi, coke], fx);
+    expect(dm.length).toBe(12);
+    expect(dm[2]).toEqual({ month: 3, amount: expect.closeTo(250 + 1455, 4), count: 2 }); // 3月: 両方
+    expect(dm[5].count).toBe(1); // 6月: cokeのみ
+    expect(dm[5].amount).toBeCloseTo(1455, 4);
+    expect(dm[0].count).toBe(0); // 1月: なし
+    expect(dm[0].amount).toBe(0);
+  });
+
+  test("支払月が空の銘柄は数えない", () => {
+    const dm = dividendMonths([h({ payoutMonths: [] })], fx);
+    expect(dm.every((x) => x.count === 0 && x.amount === 0)).toBe(true);
   });
 });
 

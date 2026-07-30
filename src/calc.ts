@@ -132,6 +132,26 @@ export function monthlyDividends(holdings: Holding[], fx: number): number[] {
   return months;
 }
 
+// 各月(1〜12)の配当予定：円換算の金額と、その月に配当がある銘柄数。
+// 配当月リマインド通知の本文づくりに使う（monthlyDividends は金額のみなので別途）。
+export type MonthlyPayout = { month: number; amount: number; count: number };
+
+export function dividendMonths(holdings: Holding[], fx: number): MonthlyPayout[] {
+  const amount = new Array(12).fill(0);
+  const count = new Array(12).fill(0);
+  for (const h of holdings) {
+    if (h.payoutMonths.length === 0) continue;
+    const per = annualDividendJPY(h, fx) / h.payoutMonths.length;
+    for (const m of h.payoutMonths) {
+      if (m >= 1 && m <= 12) {
+        amount[m - 1] += per;
+        count[m - 1] += 1;
+      }
+    }
+  }
+  return Array.from({ length: 12 }, (_, i) => ({ month: i + 1, amount: amount[i], count: count[i] }));
+}
+
 // ---- 口座別サマリー（円ベース） ------------------------------------------
 
 export type AccountSummaryRow = {

@@ -86,7 +86,13 @@ function normalizeGoal(raw: any): Goal {
 
 function normalizeSettings(raw: any): Settings {
   const fx = num(raw?.fxUsdJpy, DEFAULT_SETTINGS.fxUsdJpy);
-  return { fxUsdJpy: fx > 0 ? fx : DEFAULT_SETTINGS.fxUsdJpy };
+  return {
+    fxUsdJpy: fx > 0 ? fx : DEFAULT_SETTINGS.fxUsdJpy,
+    notifyDividendMonth:
+      typeof raw?.notifyDividendMonth === "boolean"
+        ? raw.notifyDividendMonth
+        : DEFAULT_SETTINGS.notifyDividendMonth,
+  };
 }
 
 // 貼り付け/読み込んだ文字列を検証してデータへ。壊れていれば日本語メッセージで throw。

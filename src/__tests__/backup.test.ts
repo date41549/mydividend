@@ -35,7 +35,7 @@ const goal: Goal = {
   holdingsCount: 50,
   acquisitionTotal: 3000000,
 };
-const settings: Settings = { fxUsdJpy: 160 };
+const settings: Settings = { fxUsdJpy: 160, notifyDividendMonth: true };
 
 describe("buildBackup", () => {
   test("app/version/exportedAt を含む整形JSONを返す", () => {

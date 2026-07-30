@@ -40,7 +40,8 @@
             "backgroundColor": "#0B120E"
           }
         }
-      ]
+      ],
+      "expo-notifications"
     ],
     "extra": {
       "eas": {

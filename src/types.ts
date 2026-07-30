@@ -52,8 +52,10 @@ export const DEFAULT_GOAL: Goal = {
 // アプリ設定。米国資産を円換算するための為替レートなど。
 export type Settings = {
   fxUsdJpy: number; // 1USD = 何円（手入力）
+  notifyDividendMonth: boolean; // 配当月リマインド通知のON/OFF
 };
 
 export const DEFAULT_SETTINGS: Settings = {
   fxUsdJpy: 150,
+  notifyDividendMonth: false,
 };

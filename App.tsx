@@ -36,6 +36,11 @@ import { HoldingForm } from "./src/components/HoldingForm";
 import { CalendarView } from "./src/components/CalendarView";
 import { GoalView } from "./src/components/GoalView";
 import { SettingsView } from "./src/components/SettingsView";
+import {
+  ensureAndroidChannel,
+  requestNotificationPermission,
+  rescheduleDividendReminders,
+} from "./src/notifications";
 import { CompositionCard } from "./src/components/CompositionCard";
 import { NisaQuotaCard } from "./src/components/NisaQuotaCard";
 import { YocHistogramCard } from "./src/components/YocHistogramCard";
@@ -115,8 +120,29 @@ function AppMain() {
     })();
   }, []);
 
+  // Android の通知チャンネルを初期化（起動時1回）。
+  useEffect(() => {
+    ensureAndroidChannel().catch(() => {});
+  }, []);
+
+  // 配当月リマインドを holdings/settings の変化に追従して張り直す（FR-17）。
+  useEffect(() => {
+    rescheduleDividendReminders(holdings, settings, settings.fxUsdJpy, new Date()).catch(() => {});
+  }, [holdings, settings]);
+
   function handleSaveFx(rate: number) {
     const next = { ...settings, fxUsdJpy: rate };
+    setSettings(next);
+    saveSettings(next);
+  }
+
+  // 配当月リマインド通知のON/OFF。ONにするとき先に許可を取り、拒否されたらOFFのまま。
+  async function handleToggleNotify(on: boolean) {
+    if (on) {
+      const granted = await requestNotificationPermission();
+      if (!granted) return;
+    }
+    const next = { ...settings, notifyDividendMonth: on };
     setSettings(next);
     saveSettings(next);
   }
@@ -214,7 +240,13 @@ function AppMain() {
           <GoalView holdings={holdings} goal={goal} fx={fx} onSave={handleSaveGoal} />
         )}
         {tab === "settings" && (
-          <SettingsView holdings={holdings} goal={goal} settings={settings} onImport={handleImport} />
+          <SettingsView
+            holdings={holdings}
+            goal={goal}
+            settings={settings}
+            onImport={handleImport}
+            onToggleNotify={handleToggleNotify}
+          />
         )}
       </View>
 
