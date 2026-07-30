@@ -53,10 +53,14 @@
 - [ ] Android：本番アクセス承認後、製品版へ昇格 → 審査（数時間〜数日）
 - [ ] 公開🎉
 
+## OTA（expo-updates）※導入済み（2026-07-30）
+- **設定済み**：`updates.url` / `runtimeVersion`(policy=appVersion) / eas.json の channel（production/preview/development）。v1.0.1 以降のビルドが対象。
+- **JSのみの修正の配信手順**：`eas update --channel production --message "説明"` → v1.0.1 以降を入れた端末が次回起動時に自動取得（審査なし）。
+- **ネイティブ変更（新ライブラリ・app.json のネイティブ設定・SDK上げ）は OTA 不可** → 新AAB/IPA を作り直してストアへ。app.json の `version` を上げると runtimeVersion も変わり、旧ビルドはそのOTA対象外になる（＝ネイティブ変更時は version を上げる、JSのみは据え置き）。
+
 ## 公開後（v1.2〜）
 - [ ] 反応・レビューを見る
-- [ ] 広告(AdMob)・課金(RevenueCat)・深掘り分析の有料化を検討（要EAS Dev Build）
-- [ ] JSだけの修正は expo-updates で審査なし配信も可
+- [ ] 広告(AdMob)・課金(RevenueCat)・深掘り分析の有料化を検討（要EAS Dev Build・ネイティブ再ビルド）
 
 ---
 

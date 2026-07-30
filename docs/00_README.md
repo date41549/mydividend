@@ -28,14 +28,16 @@
 - **データ源**：MVPは手入力（規約・法律・コストを回避）。将来 J-Quants を検討
 - **技術**：Expo + TypeScript、AsyncStorage、MVPはシンプルなタブUI
 
-## 現状（2026-07-26 時点）
+## 現状（2026-07-30 時点）
 
-### アプリ実装（MVP＋v1.1/v1.2の一部まで完成）
+### アプリ実装（MVP＋v1.1/v1.2の一部まで完成・v1.0.1）
 - UI/UXを **B（明るくポップ＋データ密／緑の¥コイン）** で刷新・アフォーダンス整備（`08`）・**セーフエリア対応**・ダーク対応
 - 保有CRUD・円換算・並び替え・サマリー・カレンダー・目標・口座別・永続化・免責・外部リンク（FR-1〜9）
-- **JSONバックアップ(FR-10)** ／ **内訳ドーナツ(FR-4b：資産種別/セクター/景気感応度/銘柄 × 評価額/配当)** ／ **NISA生涯枠ゲージ(FR-11)** ／ **簿価利回りヒストグラム(FR-14)**
+- **JSONバックアップ(FR-10)** ／ **内訳ドーナツ(FR-4b：資産種別/セクター/景気感応度/銘柄 × 評価額/配当)** ／ **NISA生涯枠ゲージ(FR-11)** ／ **簿価利回りヒストグラム(FR-14)** ／ **構成ツリーマップ(FR-13)** ／ **税引後精緻化(FR-16)** ／ **配当月リマインド通知(FR-17)**
+- **テスターFB**：サマリーの額面/手取りトグル(FB1)／**コード入力で銘柄名＋業種を自動補完(FB2：`stockDirectory.ts` に約280銘柄の静的辞書。外部API非依存を維持した入力補助)**
 - アイコン/スプラッシュ（緑¥コイン・`scripts/gen-icons.mjs`）・表示名「マイ配当」
-- **品質**：ESLint＋型＋単体テスト(calc/backup **47ケース**)の3ゲート緑・CI(`.github/workflows`)・**expo-doctor 20/20**
+- **品質**：ESLint＋型＋単体テスト(calc/backup/stockDirectory **59ケース**)の3ゲート緑・CI(`.github/workflows`)・**expo-doctor 20/20**
+- **OTA**：**expo-updates 導入済み**（channel=production・runtimeVersion policy=appVersion）。JSのみの修正は `eas update --channel production` で審査なし即配信できる（対象は v1.0.1 以降のビルド）
 - **識別子**：bundle id `com.datz.mydividend`
 
 ### 公開準備（素材はほぼ完成）
@@ -43,13 +45,13 @@
 - **プライバシーポリシー**：`https://mydividend.datz.app/privacy.html`（連絡先 `hello@datz.app`）
 - **ストア掲載文**：`store_listing.md`（名前/サブ/キーワード/説明/スクショ構成）
 - **ドメイン**：`datz.app`（Cloudflare・屋号アンブレラ）／メール `hello@datz.app`（個人Gmailへ転送）
-- **EAS**：`eas init`済み・**Android実機ビルド成功＆インストール確認済み**（`package-lock.json`を追跡せず `npm install` 運用でLinuxビルドのlock不整合を回避）
+- **EAS**：`eas init`済み・**Android production ビルド運用（`package-lock.json`を追跡せず `npm install` 運用でLinuxビルドのlock不整合を回避）
 
-### ⏳ 待ち／次（Play本人確認が解けたら再開）
-- **Google Play 開発者アカウント 本人確認中（数日）** ← ここが解けるまで公開作業は停止中
-- 承認後：クローズドテスト設定 → AABアップ → **12人×14日**（知人をPlay経由＋Discord相互）→ 審査 → 公開。公開時にLPの「近日公開」をPlay URLへ差し替え
-- **iOSも進行中**：Macシミュレータ(iPhone 15 Pro Max)で動作確認済み＋**App Store用スクショ5枚撮影済み**（1290×2796）。**Apple Developer 登録申請済み（アクティベーション待ち）**。承認後に `eas build -p ios`→TestFlight(12人ゲート無し)→App Store審査
-- 広告・課金(v1.2〜)はEAS Dev Build時に
+### 現在地（2026-07-30）
+- **Android＝クローズドテスト中**（12人×14日を消化中）。**v1.0.1 / versionCode 2 の新AABをビルド済み**（FB1/FB2＋OTA導入を反映）→ Play Console のクローズドテストへアップ予定。versionCode 2 なので重複エラー無し
+- **iOS＝App Store 審査提出済み**（v1.0.0 / build 1）。次に iOS を作る時は buildNumber を上げて再ビルド（今回の Android v1.0.1 とは独立）
+- **以降のJSのみ修正は OTA**：`eas update --channel production` で審査なし配信（v1.0.1 以降の端末が対象。versionCode 1 のテスターは新AABに更新後にOTA対象化）
+- 広告(FR-12)・課金は引き続き v1.2〜（ネイティブ再ビルド＋ストア設定が要る＝OTA不可）。認証/証券連携は「端末内・収集なし」の売り＆ストア申告と矛盾するため入れない方針
 
 ## 開発の進め方（ルール）
 
