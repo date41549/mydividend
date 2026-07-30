@@ -307,6 +307,96 @@ export function portfolioComposition(
   return sliced.map((s) => ({ ...s, pct: (s.value / total) * 100 }));
 }
 
+// ---- ツリーマップ配置（FR-13・深掘り分析） -------------------------------
+
+export type TreemapRect = {
+  key: string;
+  label: string;
+  value: number;
+  pct: number;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+};
+
+// 行（列）内の面積リストの「最悪アスペクト比」。小さいほど正方形に近い＝良い配置。
+function worstRatio(areas: number[], side: number): number {
+  const sum = areas.reduce((a, b) => a + b, 0);
+  if (sum <= 0 || side <= 0) return Infinity;
+  const mx = Math.max(...areas);
+  const mn = Math.min(...areas);
+  const s2 = sum * sum;
+  return Math.max((side * side * mx) / s2, s2 / (side * side * mn));
+}
+
+// Squarified Treemap（Bruls et al.）。構成スライスを width×height の矩形に敷き詰める。
+// なるべく正方形に近い矩形になるよう貪欲に行/列を組む。合計0や領域0なら空。
+export function squarifiedTreemap(
+  slices: CompositionSlice[],
+  width: number,
+  height: number
+): TreemapRect[] {
+  const total = slices.reduce((s, x) => s + x.value, 0);
+  if (total <= 0 || width <= 0 || height <= 0) return [];
+
+  const scale = (width * height) / total;
+  const nodes = slices
+    .map((s) => ({ ...s, area: s.value * scale }))
+    .filter((n) => n.area > 0)
+    .sort((a, b) => b.area - a.area);
+
+  const rects: TreemapRect[] = [];
+  let x = 0;
+  let y = 0;
+  let w = width;
+  let h = height;
+  let i = 0;
+
+  while (i < nodes.length) {
+    const side = Math.min(w, h);
+    // 貪欲に行を伸ばす：次を足してもアスペクト比が悪化しない間は足す。
+    const row = [nodes[i]];
+    let j = i + 1;
+    while (j < nodes.length) {
+      const cur = row.map((n) => n.area);
+      const next = [...cur, nodes[j].area];
+      if (worstRatio(next, side) <= worstRatio(cur, side)) {
+        row.push(nodes[j]);
+        j++;
+      } else break;
+    }
+
+    const rowArea = row.reduce((s, n) => s + n.area, 0);
+    if (w >= h) {
+      // 左に幅 colW の列を立て、その中に縦積み。
+      const colW = rowArea / h;
+      let yy = y;
+      for (const n of row) {
+        const hh = n.area / colW;
+        rects.push({ key: n.key, label: n.label, value: n.value, pct: n.pct, x, y: yy, w: colW, h: hh });
+        yy += hh;
+      }
+      x += colW;
+      w -= colW;
+    } else {
+      // 上に高さ rowH の行を敷き、その中に横並び。
+      const rowH = rowArea / w;
+      let xx = x;
+      for (const n of row) {
+        const ww = n.area / rowH;
+        rects.push({ key: n.key, label: n.label, value: n.value, pct: n.pct, x: xx, y, w: ww, h: rowH });
+        xx += ww;
+      }
+      y += rowH;
+      h -= rowH;
+    }
+    i = j;
+  }
+
+  return rects;
+}
+
 // ---- 簿価利回りヒストグラム（FR-14・深掘り分析） --------------------------
 
 export type YocBucket = { label: string; count: number };

@@ -44,6 +44,7 @@ import {
 import { CompositionCard } from "./src/components/CompositionCard";
 import { NisaQuotaCard } from "./src/components/NisaQuotaCard";
 import { YocHistogramCard } from "./src/components/YocHistogramCard";
+import { TreemapCard } from "./src/components/TreemapCard";
 import { ParsedBackup } from "./src/backup";
 
 type Tab = "holdings" | "calendar" | "goal" | "settings";
@@ -224,6 +225,7 @@ function AppMain() {
                   <AccountSummary holdings={holdings} fx={fx} />
                   <NisaQuotaCard holdings={holdings} fx={fx} />
                   <YocHistogramCard holdings={holdings} />
+                  <TreemapCard holdings={holdings} fx={fx} />
                   {hasUS ? <FxRateBar t={t} fx={fx} onSave={handleSaveFx} /> : null}
                   <SortBar t={t} value={sortKey} onChange={setSortKey} />
                 </>

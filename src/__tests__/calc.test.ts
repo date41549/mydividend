@@ -28,6 +28,7 @@ import {
   goalProgress,
   cyclicalityBalance,
   portfolioComposition,
+  squarifiedTreemap,
   nisaLifetimeUsed,
   NISA_LIFETIME_CAP,
   yocHistogram,
@@ -368,6 +369,50 @@ describe("構成比（ドーナツ用）", () => {
     const noPrice = h({ id: "np", price: 0, shares: 10, dividendPerShare: 5 });
     expect(portfolioComposition([noPrice], fx, "holding", "dividend")).toHaveLength(1);
     expect(portfolioComposition([noPrice], fx, "holding", "value")).toHaveLength(0);
+  });
+});
+
+describe("ツリーマップ配置（squarifiedTreemap）", () => {
+  const slices = [
+    { key: "a", label: "A", value: 50, pct: 50 },
+    { key: "b", label: "B", value: 30, pct: 30 },
+    { key: "c", label: "C", value: 20, pct: 20 },
+  ];
+
+  test("全矩形の面積合計が領域に一致し、各矩形は値に比例", () => {
+    const W = 300;
+    const H = 200;
+    const rects = squarifiedTreemap(slices, W, H);
+    expect(rects.length).toBe(3);
+    const totalArea = rects.reduce((s, r) => s + r.w * r.h, 0);
+    expect(totalArea).toBeCloseTo(W * H, 2);
+    const a = rects.find((r) => r.key === "a")!;
+    expect(a.w * a.h).toBeCloseTo(W * H * 0.5, 2); // A=50%
+  });
+
+  test("全矩形が領域内に収まる（はみ出さない）", () => {
+    const W = 300;
+    const H = 200;
+    const rects = squarifiedTreemap(slices, W, H);
+    for (const r of rects) {
+      expect(r.x).toBeGreaterThanOrEqual(-1e-6);
+      expect(r.y).toBeGreaterThanOrEqual(-1e-6);
+      expect(r.x + r.w).toBeLessThanOrEqual(W + 1e-6);
+      expect(r.y + r.h).toBeLessThanOrEqual(H + 1e-6);
+    }
+  });
+
+  test("合計0・領域0・空は空配列", () => {
+    expect(squarifiedTreemap([], 300, 200)).toEqual([]);
+    expect(squarifiedTreemap(slices, 0, 200)).toEqual([]);
+    expect(squarifiedTreemap([{ key: "z", label: "Z", value: 0, pct: 0 }], 300, 200)).toEqual([]);
+  });
+
+  test("1件なら領域全体を占める", () => {
+    const rects = squarifiedTreemap([{ key: "only", label: "唯一", value: 10, pct: 100 }], 300, 200);
+    expect(rects.length).toBe(1);
+    expect(rects[0].w).toBeCloseTo(300, 4);
+    expect(rects[0].h).toBeCloseTo(200, 4);
   });
 });
 
