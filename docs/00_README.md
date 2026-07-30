@@ -15,6 +15,7 @@
 | [06_cicd.md](06_cicd.md) | CI/CD 設計（GitHub Actions ＋ EAS Build/Submit） |
 | [07_go_to_market.md](07_go_to_market.md) | 宣伝・ユーザー獲得戦略（ASO・オーガニック・広告） |
 | [08_ui_ux_design.md](08_ui_ux_design.md) | UI/UX設計（デザインシステム・配色/タイポ・コンポーネント・アフォーダンス）※UI実装の正 |
+| [09_roadmap.md](09_roadmap.md) | 成長戦略・実装ロードマップ（位置づけB＝収益プロダクト・サブスク一本・実装順）※今後の作る順の正 |
 | [launch_checklist.md](launch_checklist.md) | 公開作業チェックリスト（伊達さん用の手順書。アカウント→ビルド→テスター→提出） |
 | [store_listing.md](store_listing.md) | ストア掲載文ドラフト（名前/サブ/キーワード/説明/スクショ構成。コピペ用） |
 | [privacy_policy.md](privacy_policy.md) | プライバシーポリシー（公開URL化して両ストアに登録） |
