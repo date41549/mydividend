@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Modal,
   View,
@@ -12,6 +12,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Holding, HoldingInput, AccountType, AssetType } from "../types";
 import { SECTOR_LIST } from "../sectorClassification";
+import { lookupStock } from "../stockDirectory";
 import { ASSET_TYPES, currencyOf, currencySymbol } from "../assetClass";
 import { Theme, useTheme, spacing, radius } from "../theme";
 
@@ -51,6 +52,10 @@ export function HoldingForm({
   const [account, setAccount] = useState<AccountType>("nisa");
   const [sector, setSector] = useState<string | undefined>(undefined);
   const [memo, setMemo] = useState("");
+  // コードからの自動補完（FB2）で入れた値を覚えておき、ユーザーが手で直した値は
+  // 上書きしないためのしるし。編集時・別コードへの打ち替え時に賢く振る舞う。
+  const [autoFilled, setAutoFilled] = useState<string | null>(null);
+  const lastAuto = useRef<{ name?: string; sector?: string }>({});
 
   // モーダルを開くたびに initial の内容で初期化する。
   // 開いた瞬間に props から state を同期する意図的な初期化。key での再マウントでも
@@ -69,11 +74,39 @@ export function HoldingForm({
     setAccount(initial?.account ?? "nisa");
     setSector(initial?.sector);
     setMemo(initial?.memo ?? "");
+    // 既存の値は「ユーザーの値」として扱い、自動補完の対象にしない。
+    setAutoFilled(null);
+    lastAuto.current = {};
   }, [visible, initial]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
   const cur = currencyOf(assetType);
   const sym = currencySymbol(cur);
+
+  // コード入力時に銘柄名・業種を自動補完する（日本の資産のみ・辞書に載っていれば）。
+  // 直前に自動補完した値、または空欄のときだけ入れる＝手入力は壊さない。
+  function onChangeCode(v: string) {
+    setCode(v);
+    // 関数型 setState の更新関数は遅延実行される。その中で lastAuto.current を読むと
+    // 下で書き換えた後の値になってしまうため、必ずローカルに退避してから使う。
+    const prevAuto = lastAuto.current;
+    const hit = cur === "JPY" ? lookupStock(v) : undefined;
+    if (hit) {
+      setName((prev) => (!prev.trim() || prev === prevAuto.name ? hit.name : prev));
+      if (hit.sector) {
+        const sec = hit.sector;
+        setSector((prev) => (!prev || prev === prevAuto.sector ? sec : prev));
+      }
+      lastAuto.current = { name: hit.name, sector: hit.sector };
+      setAutoFilled(hit.sector ? `${hit.name}・${hit.sector}` : hit.name);
+    } else {
+      // コードが辞書から外れたら、自動補完した値だけ引っ込める（手入力は残す）。
+      setName((prev) => (prev === prevAuto.name ? "" : prev));
+      setSector((prev) => (prev === prevAuto.sector ? undefined : prev));
+      lastAuto.current = {};
+      setAutoFilled(null);
+    }
+  }
 
   function toggleMonth(m: number) {
     setPayoutMonths((prev) =>
@@ -152,9 +185,10 @@ export function HoldingForm({
           <Text style={s.hint}>通貨：{cur === "USD" ? "米ドル（$）" : "円（¥）"}（資産種別から自動）</Text>
 
           <Row t={t}>
-            <Field t={t} style={{ flex: 1 }} label="コード/ティッカー" value={code} onChangeText={setCode} placeholder={cur === "USD" ? "VYM" : "8058"} keyboardType={cur === "USD" ? "default" : "numbers-and-punctuation"} />
+            <Field t={t} style={{ flex: 1 }} label="コード/ティッカー" value={code} onChangeText={onChangeCode} placeholder={cur === "USD" ? "VYM" : "8058"} keyboardType={cur === "USD" ? "default" : "numbers-and-punctuation"} />
             <Field t={t} style={{ flex: 2 }} label="銘柄名 *" value={name} onChangeText={setName} placeholder={cur === "USD" ? "Vanguard 高配当ETF" : "三菱商事"} />
           </Row>
+          {autoFilled ? <Text style={s.autoHint}>🔎 {autoFilled} を自動入力（そのまま直せます）</Text> : null}
           <Row t={t}>
             <Field t={t} style={{ flex: 1 }} label="保有株数 *" value={shares} onChangeText={setShares} placeholder="100" keyboardType="numeric" />
             <Field t={t} style={{ flex: 1 }} label={`1株配当（${sym}）*`} value={dividendPerShare} onChangeText={setDividendPerShare} placeholder={cur === "USD" ? "3.5" : "125"} keyboardType="numeric" />
@@ -285,6 +319,7 @@ const styles = (t: Theme) =>
     body: { padding: spacing.lg },
     label: { color: t.sub, fontSize: 12, marginTop: spacing.md, marginBottom: spacing.xs },
     hint: { color: t.sub, fontSize: 11, marginTop: spacing.xs },
+    autoHint: { color: t.primary, fontSize: 12, marginTop: spacing.xs, fontWeight: "600" },
     input: {
       borderWidth: StyleSheet.hairlineWidth,
       borderColor: t.border,
