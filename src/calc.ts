@@ -2,8 +2,14 @@ import { Holding, AccountType, Cyclicality, Goal, Currency } from "./types";
 import { cyclicalityOf, cyclicalityLabel } from "./sectorClassification";
 import { currencyOf, toJPY, assetLabel } from "./assetClass";
 
-// 日本株の配当にかかる税率（所得税15.315% + 住民税5% = 20.315%）
+// 日本の配当にかかる税率（所得税15.315% + 住民税5% = 20.315%）
 export const TAX_RATE = 0.20315;
+
+// 米国株・ETF配当の米国源泉税（租税条約に基づく軽減税率10%）。
+// 特定・一般口座では確定申告で外国税額控除により一部還付され得るが、
+// 概算では控除前（引かれっぱなし）で表示し、UIで注記する。
+// NISAでも米国源泉10%は課税される（日本側が非課税なだけで、外国税額控除も使えない）。
+export const US_WITHHOLDING = 0.10;
 
 // ---- 1銘柄あたりの計算（すべて銘柄の通貨建て） ---------------------------
 
@@ -16,11 +22,15 @@ export function annualDividend(h: Holding): number {
   return h.shares * h.dividendPerShare;
 }
 
-// 年間配当（税引後・通貨建て）。NISAは非課税、それ以外は20.315%控除。
-// ※米国資産の米国源泉10%やJ-REIT特有の扱いはMVPでは未考慮（概算）。
+// 年間配当（税引後・通貨建て）の概算。
+// 課税は「米国源泉 → 日本」の順にかかる。
+//   米国株/ETF … まず米国源泉10%を控除（NISAでも課税される）。
+//   日本の課税 … NISAは非課税、特定・一般は残額に20.315%。
+// ※特定口座の外国税額控除（確定申告で一部還付）とJ-REIT特有の扱いは未反映の概算。
 export function afterTaxDividend(h: Holding): number {
   const gross = annualDividend(h);
-  return h.account === "nisa" ? gross : gross * (1 - TAX_RATE);
+  const afterUS = currency(h) === "USD" ? gross * (1 - US_WITHHOLDING) : gross;
+  return h.account === "nisa" ? afterUS : afterUS * (1 - TAX_RATE);
 }
 
 // 現在利回り（%）＝ 1株配当 ÷ 現在株価 × 100。通貨に依存しない比率。

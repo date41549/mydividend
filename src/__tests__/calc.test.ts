@@ -2,6 +2,7 @@ import { describe, test, expect } from "@jest/globals";
 import { Holding, Goal } from "../types";
 import {
   TAX_RATE,
+  US_WITHHOLDING,
   currency,
   annualDividend,
   afterTaxDividend,
@@ -92,12 +93,24 @@ describe("1銘柄あたりの計算（通貨建て）", () => {
     expect(annualDividend(h({ shares: 4, dividendPerShare: 125 }))).toBe(500);
   });
 
-  test("afterTaxDividend: NISAは非課税、課税口座は20.315%控除", () => {
+  test("afterTaxDividend: NISAは非課税、課税口座は20.315%控除（日本資産）", () => {
     expect(afterTaxDividend(h({ shares: 4, dividendPerShare: 125, account: "nisa" }))).toBe(500);
     expect(
       afterTaxDividend(h({ shares: 4, dividendPerShare: 125, account: "specific" }))
     ).toBeCloseTo(500 * (1 - TAX_RATE), 6);
     expect(TAX_RATE).toBeCloseTo(0.20315, 6);
+  });
+
+  test("afterTaxDividend: 米国資産は米国源泉10%を先に控除", () => {
+    // 米国株・特定：米国源泉10% → 日本20.315%
+    const usSpecific = h({ assetType: "us_stock", shares: 10, dividendPerShare: 2, account: "specific" });
+    expect(afterTaxDividend(usSpecific)).toBeCloseTo(20 * (1 - US_WITHHOLDING) * (1 - TAX_RATE), 6);
+    // 米国株・NISA：日本は非課税でも米国源泉10%は課税される
+    const usNisa = h({ assetType: "us_stock", shares: 10, dividendPerShare: 2, account: "nisa" });
+    expect(afterTaxDividend(usNisa)).toBeCloseTo(20 * (1 - US_WITHHOLDING), 6);
+    // 日本株・NISAは満額（米国源泉なし）
+    expect(afterTaxDividend(h({ assetType: "jp_stock", shares: 10, dividendPerShare: 2, account: "nisa" }))).toBe(20);
+    expect(US_WITHHOLDING).toBeCloseTo(0.1, 6);
   });
 
   test("currentYield = 1株配当 ÷ 株価 ×100、株価0以下なら0", () => {
@@ -155,8 +168,8 @@ describe("ポートフォリオ全体（円ベース）", () => {
   });
 
   test("totalAnnualAfterTax: NISAは満額、課税は控除", () => {
-    const mitsubishiAfter = 500; // NISA
-    const cokeAfter = 38.8 * 150 * (1 - TAX_RATE); // 課税
+    const mitsubishiAfter = 500; // NISA・日本株＝満額
+    const cokeAfter = 38.8 * 150 * (1 - US_WITHHOLDING) * (1 - TAX_RATE); // 米国・特定＝米国源泉10%→日本課税
     expect(totalAnnualAfterTax(port, fx)).toBeCloseTo(mitsubishiAfter + cokeAfter, 4);
   });
 

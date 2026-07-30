@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { Holding } from "../types";
-import { accountSummary, accountLabel, yen } from "../calc";
+import { accountSummary, accountLabel, yen, currency } from "../calc";
 import { Theme, useTheme, spacing, radius } from "../theme";
 
 // 口座別（NISA/特定/一般）のサマリー。白カードに、保有がある口座だけ表示。
@@ -10,6 +10,7 @@ export function AccountSummary({ holdings, fx }: { holdings: Holding[]; fx: numb
   const s = styles(t);
   const rows = accountSummary(holdings, fx);
   if (rows.length === 0) return null;
+  const hasUS = holdings.some((h) => currency(h) === "USD");
 
   return (
     <View style={s.card}>
@@ -25,6 +26,11 @@ export function AccountSummary({ holdings, fx }: { holdings: Holding[]; fx: numb
           </View>
         </View>
       ))}
+      {hasUS && (
+        <Text style={s.note}>
+          ※税引後は米国株・ETFの米国源泉税10%を控除した概算です。特定口座の外国税額控除（確定申告で一部還付）は未反映。
+        </Text>
+      )}
     </View>
   );
 }
@@ -62,4 +68,11 @@ const styles = (t: Theme) =>
     right: { alignItems: "flex-end" },
     amount: { color: t.text, fontSize: 15, fontWeight: "700", fontVariant: ["tabular-nums"] },
     sub: { color: t.sub, fontSize: 11.5, marginTop: 2, fontVariant: ["tabular-nums"] },
+    note: {
+      color: t.faint,
+      fontSize: 10.5,
+      lineHeight: 15,
+      paddingTop: spacing.sm,
+      paddingBottom: spacing.xs,
+    },
   });

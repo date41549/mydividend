@@ -272,11 +272,13 @@ function EmptyState({ t, onAdd }: { t: Theme; onAdd: () => void }) {
 function FxRateBar({ t, fx, onSave }: { t: Theme; fx: number; onSave: (n: number) => void }) {
   const s = styles(t);
   const [text, setText] = useState(String(fx));
+  const [prevFx, setPrevFx] = useState(fx);
 
-  // 外部（別端末の復元など）で fx が変わったら追従する。
-  useEffect(() => {
+  // 外部（別端末の復元など）で fx が変わったら入力欄に追従する（レンダー中に同期）。
+  if (fx !== prevFx) {
+    setPrevFx(fx);
     setText(String(fx));
-  }, [fx]);
+  }
 
   function commit() {
     const n = parseFloat(text.replace(/,/g, ""));
