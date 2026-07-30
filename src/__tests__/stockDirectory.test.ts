@@ -13,6 +13,13 @@ describe("stockDirectory", () => {
     expect(lookupStock("  8058 ")).toEqual({ name: "三菱商事", sector: "卸売業" });
   });
 
+  test("英字入りの新形式コード（343A）を大文字小文字問わず引ける", () => {
+    const iace = { name: "IACEトラベル", sector: "サービス業" };
+    expect(lookupStock("343A")).toEqual(iace);
+    expect(lookupStock("343a")).toEqual(iace);
+    expect(lookupStock(" 343a ")).toEqual(iace);
+  });
+
   test("未知コード・空文字は undefined", () => {
     expect(lookupStock("0000")).toBeUndefined();
     expect(lookupStock("")).toBeUndefined();

@@ -185,12 +185,12 @@ export function HoldingForm({
           <Text style={s.hint}>通貨：{cur === "USD" ? "米ドル（$）" : "円（¥）"}（資産種別から自動）</Text>
 
           <Row t={t}>
-            <Field t={t} style={{ flex: 1 }} label="コード/ティッカー" value={code} onChangeText={onChangeCode} placeholder={cur === "USD" ? "VYM" : "8058"} keyboardType={cur === "USD" ? "default" : "numbers-and-punctuation"} />
+            <Field t={t} style={{ flex: 1 }} label="コード/ティッカー" value={code} onChangeText={onChangeCode} placeholder={cur === "USD" ? "VYM" : "8058"} keyboardType="default" autoCapitalize="characters" />
             <Field t={t} style={{ flex: 2 }} label="銘柄名 *" value={name} onChangeText={setName} placeholder={cur === "USD" ? "Vanguard 高配当ETF" : "三菱商事"} />
           </Row>
           {autoFilled ? <Text style={s.autoHint}>🔎 {autoFilled} を自動入力（そのまま直せます）</Text> : null}
           <Row t={t}>
-            <Field t={t} style={{ flex: 1 }} label="保有株数 *" value={shares} onChangeText={setShares} placeholder="100" keyboardType="numeric" />
+            <SharesStepper t={t} value={shares} setValue={setShares} />
             <Field t={t} style={{ flex: 1 }} label={`1株配当（${sym}）*`} value={dividendPerShare} onChangeText={setDividendPerShare} placeholder={cur === "USD" ? "3.5" : "125"} keyboardType="numeric" />
           </Row>
           <Row t={t}>
@@ -266,6 +266,50 @@ function Row({ t, children }: { t: Theme; children: React.ReactNode }) {
   return <View style={{ flexDirection: "row", gap: spacing.sm }}>{children}</View>;
 }
 
+// 保有株数の入力。単元（100株）単位で ＋/− できるステッパー。直接入力もできる。
+// 日本株の多くは単元＝100株。単元未満（S株）や口数は直接入力で対応。
+function SharesStepper({
+  t,
+  value,
+  setValue,
+  step = 100,
+}: {
+  t: Theme;
+  value: string;
+  setValue: React.Dispatch<React.SetStateAction<string>>;
+  step?: number;
+}) {
+  const s = styles(t);
+  // 連打しても取りこぼさないよう、直前の値からではなく関数型更新で加減する。
+  const bump = (d: number) =>
+    setValue((prev) => {
+      const n = parseFloat((prev || "").replace(/,/g, ""));
+      return String(Math.max(0, (isNaN(n) ? 0 : n) + d));
+    });
+  return (
+    <View style={{ marginTop: spacing.md, flex: 1 }}>
+      <Text style={s.label}>保有株数 *</Text>
+      <View style={s.stepper}>
+        <Pressable style={s.stepBtn} onPress={() => bump(-step)} hitSlop={6} accessibilityLabel="100株減らす">
+          <Text style={s.stepBtnText}>−</Text>
+        </Pressable>
+        <TextInput
+          style={[s.input, s.stepInput]}
+          value={value}
+          onChangeText={setValue}
+          placeholder="100"
+          placeholderTextColor={t.sub}
+          keyboardType="numeric"
+          textAlign="center"
+        />
+        <Pressable style={s.stepBtn} onPress={() => bump(step)} hitSlop={6} accessibilityLabel="100株増やす">
+          <Text style={s.stepBtnText}>＋</Text>
+        </Pressable>
+      </View>
+    </View>
+  );
+}
+
 function Field({
   t,
   label,
@@ -273,6 +317,7 @@ function Field({
   onChangeText,
   placeholder,
   keyboardType,
+  autoCapitalize,
   style,
 }: {
   t: Theme;
@@ -281,6 +326,7 @@ function Field({
   onChangeText: (v: string) => void;
   placeholder?: string;
   keyboardType?: "numeric" | "numbers-and-punctuation" | "default";
+  autoCapitalize?: "none" | "characters";
   style?: object;
 }) {
   const s = styles(t);
@@ -294,6 +340,8 @@ function Field({
         placeholder={placeholder}
         placeholderTextColor={t.sub}
         keyboardType={keyboardType ?? "default"}
+        autoCapitalize={autoCapitalize ?? "none"}
+        autoCorrect={false}
       />
     </View>
   );
@@ -331,6 +379,18 @@ const styles = (t: Theme) =>
       backgroundColor: t.card,
     },
     memo: { minHeight: 64, textAlignVertical: "top" },
+    stepper: { flexDirection: "row", alignItems: "stretch", gap: spacing.sm },
+    stepBtn: {
+      width: 44,
+      alignItems: "center",
+      justifyContent: "center",
+      borderRadius: radius.sm,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: t.border,
+      backgroundColor: t.card,
+    },
+    stepBtnText: { color: t.primary, fontSize: 22, fontWeight: "700", lineHeight: 24 },
+    stepInput: { flex: 1 },
     segment: { flexDirection: "row", gap: spacing.sm },
     segItem: {
       flex: 1,

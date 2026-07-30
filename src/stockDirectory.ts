@@ -363,11 +363,15 @@ export const STOCK_DIRECTORY: Record<string, StockDirEntry> = {
   "3269": { name: "アドバンス・レジデンス投資法人" },
   "3226": { name: "日本アコモデーションファンド投資法人" },
   "8984": { name: "大和ハウスリート投資法人" },
+
+  // ── 新形式コード（英字入り・2024〜の新規上場。キーは大文字で持つ） ─────────────────────────────
+  "343A": { name: "IACEトラベル", sector: "サービス業" },
 };
 
 // コードから銘柄情報を引く。空・未知なら undefined。
+// 英字入りの新形式コード（例 343A）に備え、大文字化して照合する（辞書キーも大文字）。
 export function lookupStock(code: string): StockDirEntry | undefined {
-  const c = code.trim();
+  const c = code.trim().toUpperCase();
   if (!c) return undefined;
   const hit = STOCK_DIRECTORY[c];
   if (!hit || !hit.name) return undefined; // placeholder guard を除外
