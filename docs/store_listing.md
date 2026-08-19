@@ -4,6 +4,8 @@ App Store Connect / Google Play Console にそのまま貼れる形。文字数�
 
 ## 共通
 - **アプリ名**：マイ配当（iOS/Android 各30字以内 → OK）
+- **公開URL**：Google Play `https://play.google.com/store/apps/details?id=com.datz.mydividend`（2026-08-19 公開）／App Store `https://apps.apple.com/jp/app/id6795317283`
+- **デベロッパー名表示**：`datz`（屋号。本名は出ていない）
 
 ## iOS（App Store）
 - **サブタイトル**（30字以内）：`配当金・利回り・NISAを見える化`
@@ -13,7 +15,8 @@ App Store Connect / Google Play Console にそのまま貼れる形。文字数�
   `高配当,配当金,配当管理,配当,新NISA,NISA,利回り,配当金生活,ポートフォリオ,インカム,増配,配当カレンダー,資産管理,株,ETF`
 
 ## Android（Google Play）
-- **タイトル**（30字以内）：`マイ配当｜高配当・NISAの配当管理`
+- **タイトル**（30字以内）：**実際の公開値＝`マイ配当｜配当・NISA管理`**（13字）
+  - ドラフトは `マイ配当｜高配当・NISAの配当管理`（18字）だった。**公開値は最重要キーワード「高配当」が落ちている** → タイトルは Play の検索で最も重み付けが強いので、ASO一次最適化（[09_roadmap.md](09_roadmap.md) v1.0.x ③）でドラフト側に寄せるのを第一候補にする。30字上限に対して余裕あり。
 - **簡単な説明**（80字以内）：
   `保有株の年間配当・利回り・月別カレンダーをひと目で。ドーナツ内訳やNISA枠も。証券連携なしでプライバシー安心の配当管理アプリ。`
 
