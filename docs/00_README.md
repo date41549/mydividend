@@ -29,7 +29,7 @@
 - **データ源**：MVPは手入力（規約・法律・コストを回避）。将来 J-Quants を検討
 - **技術**：Expo + TypeScript、AsyncStorage、MVPはシンプルなタブUI
 
-## 現状（2026-07-30 時点）
+## 現状（2026-08-19 時点）
 
 ### アプリ実装（MVP＋v1.1/v1.2の一部まで完成・v1.0.1）
 - UI/UXを **B（明るくポップ＋データ密／緑の¥コイン）** で刷新・アフォーダンス整備（`08`）・**セーフエリア対応**・ダーク対応
@@ -48,9 +48,10 @@
 - **ドメイン**：`datz.app`（Cloudflare・屋号アンブレラ）／メール `hello@datz.app`（個人Gmailへ転送）
 - **EAS**：`eas init`済み・**Android production ビルド運用（`package-lock.json`を追跡せず `npm install` 運用でLinuxビルドのlock不整合を回避）
 
-### 現在地（2026-07-30）
-- **Android＝クローズドテスト中**（12人×14日を消化中）。**v1.0.1 / versionCode 2 の新AABをビルド済み**（FB1/FB2＋OTA導入を反映）→ Play Console のクローズドテストへアップ予定。versionCode 2 なので重複エラー無し
-- **iOS＝App Store 審査提出済み**（v1.0.0 / build 1）。次に iOS を作る時は buildNumber を上げて再ビルド（今回の Android v1.0.1 とは独立）
+### 現在地（2026-08-19）
+- **Android＝本番アクセスの審査に通過**（クローズドテスト 12人×14日を完了）。次は **製品版トラックへ昇格 → 製品版の審査（数時間〜数日）→ 公開**。昇格に使うのは **v1.0.1 / versionCode 2 の AAB**（FB1/FB2＋OTA導入を反映）
+- **公開できたら LP を更新**：`site/index.html` の Google Play ボタンを「近日公開」から実URL `https://play.google.com/store/apps/details?id=com.datz.mydividend` に差し替える（App Store と同じ手順）
+- **iOS＝App Store 一般公開中**（v1.0.0 / build 1）。次に iOS を作る時は buildNumber を上げて再ビルド（Android の v1.0.1 とは独立）
 - **以降のJSのみ修正は OTA**：`eas update --channel production` で審査なし配信（v1.0.1 以降の端末が対象。versionCode 1 のテスターは新AABに更新後にOTA対象化）
 - 広告(FR-12)・課金は引き続き v1.2〜（ネイティブ再ビルド＋ストア設定が要る＝OTA不可）。認証/証券連携は「端末内・収集なし」の売り＆ストア申告と矛盾するため入れない方針
 

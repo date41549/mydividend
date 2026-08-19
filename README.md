@@ -12,7 +12,7 @@
 </p>
 
 - **iOS**：App Store で一般公開中（v1.0.0）
-- **Android**：Google Play クローズドテスト（v1.0.1 / versionCode 2）
+- **Android**：Google Play **本番アクセスの審査に通過**（クローズドテスト12人×14日を完了）。製品版へ昇格 → 製品版審査 → 公開の段階（v1.0.1 / versionCode 2）
 - **配信**：JS のみの修正は EAS Update（expo-updates）で審査なし OTA 配信
 
 ---
