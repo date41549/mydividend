@@ -6,13 +6,14 @@
 **Expo / React Native / TypeScript** で個人開発。要件定義から設計・実装・両ストア公開・OTA 運用までを一人で通した学習兼プロダクト。
 
 <p>
+  <a href="https://play.google.com/store/apps/details?id=com.datz.mydividend">Google Play（公開中）</a> ・
   <a href="https://apps.apple.com/jp/app/id6795317283">App Store（公開中）</a> ・
   <a href="https://mydividend.datz.app">ランディングページ</a> ・
   <a href="https://mydividend.datz.app/privacy.html">プライバシーポリシー</a>
 </p>
 
 - **iOS**：App Store で一般公開中（v1.0.0）
-- **Android**：Google Play **本番アクセスの審査に通過**（クローズドテスト12人×14日を完了）。製品版へ昇格 → 製品版審査 → 公開の段階（v1.0.1 / versionCode 2）
+- **Android**：Google Play で一般公開中（v1.0.1 / versionCode 2・2026-08-19 公開）
 - **配信**：JS のみの修正は EAS Update（expo-updates）で審査なし OTA 配信
 
 ---

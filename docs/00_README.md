@@ -49,8 +49,9 @@
 - **EAS**：`eas init`済み・**Android production ビルド運用（`package-lock.json`を追跡せず `npm install` 運用でLinuxビルドのlock不整合を回避）
 
 ### 現在地（2026-08-19）
-- **Android＝本番アクセスの審査に通過**（クローズドテスト 12人×14日を完了）。次は **製品版トラックへ昇格 → 製品版の審査（数時間〜数日）→ 公開**。昇格に使うのは **v1.0.1 / versionCode 2 の AAB**（FB1/FB2＋OTA導入を反映）
-- **公開できたら LP を更新**：`site/index.html` の Google Play ボタンを「近日公開」から実URL `https://play.google.com/store/apps/details?id=com.datz.mydividend` に差し替える（App Store と同じ手順）
+- **両ストアで一般公開達成**。**Android＝Google Play 一般公開中**（v1.0.1 / versionCode 2・2026-08-19 公開。クローズドテスト12人×14日 → 本番アクセス承認 → 製品版昇格の順で通過）／`https://play.google.com/store/apps/details?id=com.datz.mydividend`
+- **LP も両ストア導線に更新済み**（`site/index.html` の Google Play ボタンを実URL化）
+- **次の一手**：溜めている FB3（単元ステッパー）・FB2b（新形式コード）を `eas update --channel production` で OTA 配信 → ASO一次最適化 → アプリ内レビュー導線（→ [09_roadmap.md](09_roadmap.md) の v1.0.x）
 - **iOS＝App Store 一般公開中**（v1.0.0 / build 1）。次に iOS を作る時は buildNumber を上げて再ビルド（Android の v1.0.1 とは独立）
 - **以降のJSのみ修正は OTA**：`eas update --channel production` で審査なし配信（v1.0.1 以降の端末が対象。versionCode 1 のテスターは新AABに更新後にOTA対象化）
 - 広告(FR-12)・課金は引き続き v1.2〜（ネイティブ再ビルド＋ストア設定が要る＝OTA不可）。認証/証券連携は「端末内・収集なし」の売り＆ストア申告と矛盾するため入れない方針
